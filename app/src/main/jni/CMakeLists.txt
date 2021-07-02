@@ -1,5 +1,8 @@
 cmake_minimum_required(VERSION 3.10.2)
 #set(ANDROID_NDK /home/xu/Android/Sdk/ndk/21.1.6352462)
+set(JNI_LIBS /home/xu/Documents/codes/codes_c/MyMengMedia/app/jnilibs)
+set(FFMPEG_LIBS ${JNI_LIBS}/ffmpeg)
+
 add_library(native-lib SHARED native-lib.cpp)
 include_directories(include)
 #NDK已经够建后的库,而且在cmake能够找到的路径可以直接使用
@@ -10,9 +13,10 @@ find_library(log-lib log)
 #add_library(app-glue STATIC ${ANDROID_NDK}/sources/android/native_app_glue/android_native_app_glue.c)
 
 #预构建的库
-#add_library(ffmpeg-lib SHARED IMPORTED)
-#set_target_properties(ffmpeg-lib PROPERTIES IMPORTED_LOCATION jnilibs/libffmpeg.so)
-#include_directories(jnilibs/include)
+add_library(AvFormat-lib SHARED IMPORTED)
+message("[info] --> ${FFMPEG_LIBS}/${CMAKE_ANDROID_ARCH_ABI}/libavformat.so")
+set_target_properties(AvFormat-lib PROPERTIES IMPORTED_LOCATION ${FFMPEG_LIBS}/${CMAKE_ANDROID_ARCH_ABI}/lib/libavformat.so)
+include_directories(${FFMPEG_LIBS}/${CMAKE_ANDROID_ARCH_ABI}/include)
 
 
-target_link_libraries(native-lib   ${log-lib})
+target_link_libraries(native-lib  AvFormat-lib  ${log-lib})
