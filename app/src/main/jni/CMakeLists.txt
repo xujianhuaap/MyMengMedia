@@ -16,7 +16,11 @@ find_library(log-lib log)
 add_library(AvFormat-lib SHARED IMPORTED)
 message("[info] --> ${FFMPEG_LIBS}/${CMAKE_ANDROID_ARCH_ABI}/libavformat.so")
 set_target_properties(AvFormat-lib PROPERTIES IMPORTED_LOCATION ${FFMPEG_LIBS}/${CMAKE_ANDROID_ARCH_ABI}/lib/libavformat.so)
+
+add_library(avcodec-lib SHARED IMPORTED)
+message("[info] --> ${FFMPEG_LIBS}/${CMAKE_ANDROID_ARCH_ABI}/libavcodec.so")
+set_target_properties(avcodec-lib PROPERTIES IMPORTED_LOCATION ${FFMPEG_LIBS}/${CMAKE_ANDROID_ARCH_ABI}/lib/libavcodec.so)
+
+
 include_directories(${FFMPEG_LIBS}/${CMAKE_ANDROID_ARCH_ABI}/include)
-
-
-target_link_libraries(native-lib  AvFormat-lib  ${log-lib})
+target_link_libraries(native-lib  AvFormat-lib  avcodec-lib ${log-lib})
