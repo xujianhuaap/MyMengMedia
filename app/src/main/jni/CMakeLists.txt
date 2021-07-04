@@ -21,6 +21,28 @@ add_library(avcodec-lib SHARED IMPORTED)
 message("[info] --> ${FFMPEG_LIBS}/${CMAKE_ANDROID_ARCH_ABI}/libavcodec.so")
 set_target_properties(avcodec-lib PROPERTIES IMPORTED_LOCATION ${FFMPEG_LIBS}/${CMAKE_ANDROID_ARCH_ABI}/lib/libavcodec.so)
 
+add_library(avdevice-lib SHARED IMPORTED)
+message("[info] --> ${FFMPEG_LIBS}/${CMAKE_ANDROID_ARCH_ABI}/libavdevice.so")
+set_target_properties(avdevice-lib PROPERTIES IMPORTED_LOCATION ${FFMPEG_LIBS}/${CMAKE_ANDROID_ARCH_ABI}/lib/libavdevice.so)
+
+
+add_library(avfilter-lib SHARED IMPORTED)
+message("[info] --> ${FFMPEG_LIBS}/${CMAKE_ANDROID_ARCH_ABI}/libavfilter.so")
+set_target_properties(avfilter-lib PROPERTIES IMPORTED_LOCATION ${FFMPEG_LIBS}/${CMAKE_ANDROID_ARCH_ABI}/lib/libavfilter.so)
+
+add_library(avutil-lib SHARED IMPORTED)
+message("[info] --> ${FFMPEG_LIBS}/${CMAKE_ANDROID_ARCH_ABI}/libavutil.so")
+set_target_properties(avutil-lib PROPERTIES IMPORTED_LOCATION ${FFMPEG_LIBS}/${CMAKE_ANDROID_ARCH_ABI}/lib/libavutil.so)
+
+add_library(swresample-lib SHARED IMPORTED)
+message("[info] --> ${FFMPEG_LIBS}/${CMAKE_ANDROID_ARCH_ABI}/libswresample.so")
+set_target_properties(swresample-lib PROPERTIES IMPORTED_LOCATION ${FFMPEG_LIBS}/${CMAKE_ANDROID_ARCH_ABI}/lib/libswresample.so)
+
+add_library(swscale-lib SHARED IMPORTED)
+message("[info] --> ${FFMPEG_LIBS}/${CMAKE_ANDROID_ARCH_ABI}/libswscale.so")
+set_target_properties(swscale-lib PROPERTIES IMPORTED_LOCATION ${FFMPEG_LIBS}/${CMAKE_ANDROID_ARCH_ABI}/lib/libswscale.so)
+
 
 include_directories(${FFMPEG_LIBS}/${CMAKE_ANDROID_ARCH_ABI}/include)
-target_link_libraries(native-lib  AvFormat-lib  avcodec-lib ${log-lib})
+target_link_libraries(native-lib  AvFormat-lib  avdevice-lib avfilter-lib avutil-lib
+        avcodec-lib swresample-lib  swscale-lib ${log-lib})

@@ -9,11 +9,11 @@ extern "C" {
 #endif
 /*
  * Class:     cn_skullmind_mbp_media_AudioCoder
- * Method:    readSamples
- * Signature: ()I
+ * Method:    generatePCMFile
+ * Signature: (Ljava/io/File;)I
  */
-JNIEXPORT jint JNICALL Java_cn_skullmind_mbp_media_AudioCoder_readSamples
-  (JNIEnv *, jobject);
+JNIEXPORT jint JNICALL Java_cn_skullmind_mbp_media_AudioCoder_generatePCMFile
+  (JNIEnv *, jobject thisObj, jobject sourceFileObj);
 
 #ifdef __cplusplus
 }

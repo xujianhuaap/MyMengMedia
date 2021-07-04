@@ -5,44 +5,49 @@
 #include <cn_skullmind_mbp_OSInfo.h>
 #include <cn_skullmind_mbp_media_MediaPlayer.h>
 #include "cn_skullmind_mbp_media_AudioCoder.h"
-
-#include <libavutil/frame.h>
-#include <libavutil/mem.h>
-
-#include <libavformat/avformat.h>
 #include <string>
 #include "vector"
+extern "C" {
+    #include <libavutil/frame.h>
+    #include <libavutil/mem.h>
+
+    #include <libavcodec/avcodec.h>
+    #include <libavformat/avformat.h>
+}
+
+
 
 #define AUDIO_INBUF_SIZE 20480
 #define AUDIO_REFILL_THRESH 4096
 extern "C" {
-    const std::string TAG = "ffmpeg";
-    JNIEXPORT jstring JNICALL
-    Java_cn_skullmind_mbp_OSInfo_getOSString(
-            JNIEnv *env,
-            jobject /* this */) {
-        std::string hello = "Hello from C++";
-        return env->NewStringUTF(hello.c_str());
-    }
+const std::string TAG = "ffmpeg";
+JNIEXPORT jstring JNICALL
+Java_cn_skullmind_mbp_OSInfo_getOSString(
+        JNIEnv *env,
+        jobject /* this */) {
+    std::string hello = "Hello from C++";
+    return env->NewStringUTF(hello.c_str());
+}
 
-    JNIEXPORT jobject JNICALL Java_cn_skullmind_mbp_media_MediaPlayer_supportMediaFormats
-            (JNIEnv *env, jobject) {
-        std::vector<char,std::allocator<char>> formats = {"a","v"};
-        return env->NewCharArray(formats.size());
+JNIEXPORT jobject JNICALL Java_cn_skullmind_mbp_media_MediaPlayer_supportMediaFormats
+        (JNIEnv *env, jobject) {
+    std::vector<char, std::allocator<char>> formats = {"a", "v"};
+    return env->NewCharArray(formats.size());
 
-    }
+}
+
 static int get_format_from_sample_fmt(const char **fmt,
-                                      enum AVSampleFormat sample_fmt)
-{
+                                      enum AVSampleFormat sample_fmt) {
     int i;
     struct sample_fmt_entry {
-        enum AVSampleFormat sample_fmt; const char *fmt_be, *fmt_le;
+        enum AVSampleFormat sample_fmt;
+        const char *fmt_be, *fmt_le;
     } sample_fmt_entries[] = {
-            { AV_SAMPLE_FMT_U8,  "u8",    "u8"    },
-            { AV_SAMPLE_FMT_S16, "s16be", "s16le" },
-            { AV_SAMPLE_FMT_S32, "s32be", "s32le" },
-            { AV_SAMPLE_FMT_FLT, "f32be", "f32le" },
-            { AV_SAMPLE_FMT_DBL, "f64be", "f64le" },
+            {AV_SAMPLE_FMT_U8,  "u8",    "u8"},
+            {AV_SAMPLE_FMT_S16, "s16be", "s16le"},
+            {AV_SAMPLE_FMT_S32, "s32be", "s32le"},
+            {AV_SAMPLE_FMT_FLT, "f32be", "f32le"},
+            {AV_SAMPLE_FMT_DBL, "f64be", "f64le"},
     };
     *fmt = NULL;
 
@@ -61,8 +66,7 @@ static int get_format_from_sample_fmt(const char **fmt,
 }
 
 static void decode(AVCodecContext *dec_ctx, AVPacket *pkt, AVFrame *frame,
-                   FILE *outfile)
-{
+                   FILE *outfile) {
     int i, ch;
     int ret, data_size;
 
@@ -90,92 +94,141 @@ static void decode(AVCodecContext *dec_ctx, AVPacket *pkt, AVFrame *frame,
         }
         for (i = 0; i < frame->nb_samples; i++)
             for (ch = 0; ch < dec_ctx->channels; ch++)
-                fwrite(frame->data[ch] + data_size*i, 1, data_size, outfile);
+                fwrite(frame->data[ch] + data_size * i, 1, data_size, outfile);
     }
 }
 
 
-    JNIEXPORT jint JNICALL Java_cn_skullmind_mbp_media_AudioCoder_readSamples
-        (JNIEnv *env, jobject){
-        const char* fileName;
-        const char* outFileName;
+
+JNIEXPORT jint JNICALL Java_cn_skullmind_mbp_media_AudioCoder_generatePCMFile
+        (JNIEnv *env, jobject thisObj, jobject sourceFileObj) {
+    jclass fileClazz = env->GetObjectClass(sourceFileObj);
+
+    jmethodID getFileName = env->GetMethodID(fileClazz,"getName","()Ljava/lang/String;") ;
+    jstring  sourFileName = static_cast<jstring>(env->CallObjectMethod(sourceFileObj, getFileName));
+
+    jmethodID getFilePath = env->GetMethodID(fileClazz,"getPath","()Ljava/lang/String;") ;
+    jstring  sourFilePath = static_cast<jstring>(env->CallObjectMethod(sourceFileObj, getFilePath));
+
+    jmethodID getParentPath = env->GetMethodID(fileClazz,"getParent","()Ljava/lang/String;") ;
+    jstring  sourParentPath = static_cast<jstring>(env->CallObjectMethod(sourceFileObj, getParentPath));
 
 
-        AVCodec* codec = avcodec_find_decoder(AV_CODEC_ID_MP3);
-        if(!codec){
-            std::printf("ffmpeg -->  no coder can use");
-            return -1;
-        }
-        AVCodecParserContext*  codecParserContext = av_parser_init(codec->id);
-        if(!codecParserContext){
-            std::printf("ffmpeg -->  no parser can use");
-            return -1;
-        }
+    const char *inputFilePath = env->GetStringUTFChars(sourFilePath, reinterpret_cast<jboolean*>(false));
+    const char *parentFilePath = env ->GetStringUTFChars(sourParentPath, reinterpret_cast<jboolean*>(false));
 
-        AVCodecContext* context = avcodec_alloc_context3(codec);
-        if(!context){
-            std::printf("ffmpeg -->  can not allocate codec context");
-            return -1;
-        }
+    jclass clazz = env->GetObjectClass(thisObj);
+    jmethodID funGetPCMFileName = env->GetMethodID(clazz,"getPCMFileName","(Ljava/lang/String;)Ljava/lang/String;");
+    jstring  outputStr = static_cast<jstring>((env)->CallObjectMethod(thisObj, funGetPCMFileName,
+                                                                      sourFileName));
+    const char *outFileName = env->GetStringUTFChars(outputStr, reinterpret_cast<jboolean*>(false));
+    std::printf("ffmpeg -->  no coder can use");
 
-        if(avcodec_open2(context,codec,NULL) < 0){
-            std::printf("ffmpeg --> can not open codec");
-            return -1;
-        }
 
-        FILE* openFile = fopen(fileName,"rb");
-        if(!openFile){
-            std::printf("ffmpeg --> can not open file %s",fileName);
-            return -1;
-        }
+    AVCodec *codec = avcodec_find_decoder(AV_CODEC_ID_MP2);
+    if (!codec) {
+        std::printf("ffmpeg -->  no coder can use");
+        return -1;
+    }
+    AVCodecParserContext *codecParserContext = av_parser_init(codec->id);
+    if (!codecParserContext) {
+        std::printf("ffmpeg -->  no parser can use");
+        return -1;
+    }
 
-        FILE* outputFile = fopen(outFileName,"wb");
-        if(!outputFile){
-            av_free(context);
-            return -1;
+    AVCodecContext *context = avcodec_alloc_context3(codec);
+    if (!context) {
+        std::printf("ffmpeg -->  can not allocate codec context");
+        return -1;
+    }
 
-        }
+    if (avcodec_open2(context, codec, NULL) < 0) {
+        std::printf("ffmpeg --> can not open codec");
+        return -1;
+    }
 
-        uint8_t inbuf[AUDIO_INBUF_SIZE + AV_INPUT_BUFFER_PADDING_SIZE];
-        uint8_t * data = inbuf;
-        size_t data_size = fread(inbuf,1,AUDIO_INBUF_SIZE,openFile);
-        AVFrame*  decode_frame = NULL;
-        AVPacket* packet ;
-        int result;
-        int len;
-        while (data_size > 0){
-            if(!decode_frame){
-                if(!(decode_frame=av_frame_alloc())){
-                    std::printf("ffmpeg --> can not allocate frame");
-                    return -1;
-                }
-            }
+    FILE *openFile = fopen(inputFilePath, "rb");
+    if (!openFile) {
+        std::printf("ffmpeg --> can not open file %s", inputFilePath);
+        return -1;
+    }
 
-            result = av_parser_parse2(codecParserContext,context,&packet->data,
-                    &packet->size,data,data_size,AV_NOPTS_VALUE,AV_NOPTS_VALUE,0);
-            if(result < 0){
-                std::printf("ffmpeg --> parsing occur error");
+    std::string outputPath = std::string(parentFilePath)+"/"+std::string (outFileName);
+    FILE *outputFile = fopen(outputPath.c_str(), "wb");
+    if (!outputFile) {
+        av_free(context);
+        return -1;
+
+    }
+
+    uint8_t inbuf[AUDIO_INBUF_SIZE + AV_INPUT_BUFFER_PADDING_SIZE];
+    uint8_t *data = inbuf;
+    size_t data_size = fread(inbuf, 1, AUDIO_INBUF_SIZE, openFile);
+    AVFrame *decode_frame = NULL;
+    AVPacket *packet;
+    int result;
+    int len;
+    while (data_size > 0) {
+        if (!decode_frame) {
+            if (!(decode_frame = av_frame_alloc())) {
+                std::printf("ffmpeg --> can not allocate frame");
                 return -1;
             }
-            data += result;
-            data_size -=result;
-
-            if(packet->size){
-                decode(context,packet,decode_frame,outputFile);
-            }
-
-            if (data_size < AUDIO_REFILL_THRESH) {
-                memmove(inbuf, data, data_size);
-                data = inbuf;
-                len = fread(data + data_size, 1,
-                            AUDIO_INBUF_SIZE - data_size, openFile);
-                if (len > 0)
-                    data_size += len;
-            }
-
         }
-        return 0;
+
+        result = av_parser_parse2(codecParserContext, context, &packet->data,
+                                  &packet->size, data, data_size, AV_NOPTS_VALUE, AV_NOPTS_VALUE,
+                                  0);
+        if (result < 0) {
+            std::printf("ffmpeg --> parsing occur error");
+            return -1;
+        }
+        data += result;
+        data_size -= result;
+
+        if (packet->size) {
+            decode(context, packet, decode_frame, outputFile);
+        }
+
+        if (data_size < AUDIO_REFILL_THRESH) {
+            memmove(inbuf, data, data_size);
+            data = inbuf;
+            len = fread(data + data_size, 1,
+                        AUDIO_INBUF_SIZE - data_size, openFile);
+            if (len > 0)
+                data_size += len;
+        }
+
     }
+
+
+    packet->data = NULL;
+    packet->size = 0;
+    decode(context, packet, decode_frame, outputFile);
+
+    AVSampleFormat sampleFormat = context->sample_fmt;
+    if (av_sample_fmt_is_planar(sampleFormat)) {
+        sampleFormat = av_get_packed_sample_fmt(sampleFormat);
+    }
+
+    int channelCount = context->channels;
+    const char *fmt;
+    if (get_format_from_sample_fmt(&fmt, sampleFormat) < 0) {
+        goto end;
+    }
+
+
+    end:
+    fclose(outputFile);
+    fclose(openFile);
+
+    avcodec_free_context(&context);
+    av_parser_close(codecParserContext);
+    av_frame_free(&decode_frame);
+    av_packet_free(&packet);
+
+    return 0;
+}
 
 
 }

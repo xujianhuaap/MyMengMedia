@@ -1,11 +1,15 @@
 package cn.skullmind.mbp
 
 import android.os.Bundle
+import android.os.Environment.DIRECTORY_MUSIC
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import cn.skullmind.mbp.media.AudioCoder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import java.io.File
+import java.io.FileOutputStream
 
 class MainActivity : AppCompatActivity() {
 
@@ -13,9 +17,15 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(findViewById(R.id.toolbar))
-
         findViewById<FloatingActionButton>(R.id.fab).setOnClickListener { view ->
             Toast.makeText(this, OSInfo().getOSString(), Toast.LENGTH_LONG).show()
+            val coder = AudioCoder()
+
+            val file = File(getExternalFilesDir(DIRECTORY_MUSIC),"test.mp3")
+            if(file.exists()) file.delete()
+            file.createNewFile()
+            resources.assets.open("test.mp3").copyTo(FileOutputStream(file))
+            coder.generatePCMFile(file)
         }
     }
 

@@ -1,4 +1,5 @@
 #!/bin/bash
+./gradlew clean assembleDebug
 echo "input class qualified name"
 read input
 ProjectFileDir=$(pwd)
