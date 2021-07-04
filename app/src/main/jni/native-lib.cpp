@@ -124,7 +124,7 @@ JNIEXPORT jint JNICALL Java_cn_skullmind_mbp_media_AudioCoder_generatePCMFile
     const char *outFileName = env->GetStringUTFChars(outputStr, reinterpret_cast<jboolean*>(false));
     std::printf("ffmpeg -->  no coder can use");
 
-
+    AVPacket *packet = av_packet_alloc();
     AVCodec *codec = avcodec_find_decoder(AV_CODEC_ID_MP2);
     if (!codec) {
         std::printf("ffmpeg -->  no coder can use");
@@ -165,7 +165,7 @@ JNIEXPORT jint JNICALL Java_cn_skullmind_mbp_media_AudioCoder_generatePCMFile
     uint8_t *data = inbuf;
     size_t data_size = fread(inbuf, 1, AUDIO_INBUF_SIZE, openFile);
     AVFrame *decode_frame = NULL;
-    AVPacket *packet;
+
     int result;
     int len;
     while (data_size > 0) {
