@@ -8,17 +8,14 @@
 #include <string>
 #include "vector"
 extern "C" {
-    #include <libavutil/frame.h>
-    #include <libavutil/mem.h>
-
-    #include <libavcodec/avcodec.h>
-    #include <libavformat/avformat.h>
+#include <libavutil/imgutils.h>
+#include <libavutil/samplefmt.h>
+#include <libavutil/timestamp.h>
+#include <libavcodec/avcodec.h>
+#include <libavformat/avformat.h>
 }
 
 
-
-#define AUDIO_INBUF_SIZE 20480
-#define AUDIO_REFILL_THRESH 4096
 extern "C" {
 const std::string TAG = "ffmpeg";
 JNIEXPORT jstring JNICALL
@@ -35,6 +32,8 @@ JNIEXPORT jobject JNICALL Java_cn_skullmind_mbp_media_MediaPlayer_supportMediaFo
     return env->NewCharArray(formats.size());
 
 }
+
+static int audio_frame_count =0;
 
 static int get_format_from_sample_fmt(const char **fmt,
                                       enum AVSampleFormat sample_fmt) {
@@ -64,39 +63,63 @@ static int get_format_from_sample_fmt(const char **fmt,
             av_get_sample_fmt_name(sample_fmt));
     return -1;
 }
+static int output_audio_frame(AVCodecContext *audio_dec_ctx, AVFrame *frame,FILE * audio_dst_file)
+{
+    size_t unpadded_linesize = frame->nb_samples * av_get_bytes_per_sample(
+            static_cast<AVSampleFormat>(frame->format));
+    printf("audio_frame n:%d nb_samples:%d pts:%s\n",
+           audio_frame_count++, frame->nb_samples,
+           av_ts2timestr(frame->pts, &audio_dec_ctx->time_base));
 
-static void decode(AVCodecContext *dec_ctx, AVPacket *pkt, AVFrame *frame,
-                   FILE *outfile) {
-    int i, ch;
-    int ret, data_size;
+    /* Write the raw audio data samples of the first plane. This works
+     * fine for packed formats (e.g. AV_SAMPLE_FMT_S16). However,
+     * most audio decoders output planar audio, which uses a separate
+     * plane of audio samples for each channel (e.g. AV_SAMPLE_FMT_S16P).
+     * In other words, this code will write only the first audio channel
+     * in these cases.
+     * You should use libswresample or libavfilter to convert the frame
+     * to packed data. */
+    fwrite(frame->extended_data[0], 1, unpadded_linesize, audio_dst_file);
 
-    /* send the packet with the compressed data to the decoder */
-    ret = avcodec_send_packet(dec_ctx, pkt);
-    if (ret < 0) {
-        fprintf(stderr, "Error submitting the packet to the decoder\n");
-        exit(1);
-    }
-
-    /* read all the output frames (in general there may be any number of them */
-    while (ret >= 0) {
-        ret = avcodec_receive_frame(dec_ctx, frame);
-        if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF)
-            return;
-        else if (ret < 0) {
-            fprintf(stderr, "Error during decoding\n");
-            exit(1);
-        }
-        data_size = av_get_bytes_per_sample(dec_ctx->sample_fmt);
-        if (data_size < 0) {
-            /* This should not occur, checking just for paranoia */
-            fprintf(stderr, "Failed to calculate data size\n");
-            exit(1);
-        }
-        for (i = 0; i < frame->nb_samples; i++)
-            for (ch = 0; ch < dec_ctx->channels; ch++)
-                fwrite(frame->data[ch] + data_size * i, 1, data_size, outfile);
-    }
+    return 0;
 }
+
+static int decode_packet(AVCodecContext *avCodecContext, const AVPacket *pkt, AVFrame * frame,FILE* destFile)
+{
+    int ret = 0;
+
+    // submit the packet to the decoder
+    ret = avcodec_send_packet(avCodecContext, pkt);
+    if (ret < 0) {
+        fprintf(stderr, "Error submitting a packet for decoding (%s)\n", av_err2str(ret));
+        return ret;
+    }
+
+    // get all the available frames from the decoder
+    while (ret >= 0) {
+        ret = avcodec_receive_frame(avCodecContext, frame);
+        if (ret < 0) {
+            // those two return values are special and mean there is no output
+            // frame available, but there were no errors during decoding
+            if (ret == AVERROR_EOF || ret == AVERROR(EAGAIN))
+                return 0;
+
+            fprintf(stderr, "Error during decoding (%s)\n", av_err2str(ret));
+            return ret;
+        }
+
+        // write the frame data to output file
+
+        ret = output_audio_frame(avCodecContext,frame,destFile);
+
+        av_frame_unref(frame);
+        if (ret < 0)
+            return ret;
+    }
+
+    return 0;
+}
+
 
 
 
@@ -124,28 +147,59 @@ JNIEXPORT jint JNICALL Java_cn_skullmind_mbp_media_AudioCoder_generatePCMFile
     const char *outFileName = env->GetStringUTFChars(outputStr, reinterpret_cast<jboolean*>(false));
     std::printf("ffmpeg -->  no coder can use");
 
-    AVPacket *packet = av_packet_alloc();
-    AVCodec *codec = avcodec_find_decoder(AV_CODEC_ID_MP2);
-    if (!codec) {
-        std::printf("ffmpeg -->  no coder can use");
-        return -1;
-    }
-    AVCodecParserContext *codecParserContext = av_parser_init(codec->id);
-    if (!codecParserContext) {
-        std::printf("ffmpeg -->  no parser can use");
+    av_register_all();
+    AVFormatContext*  avFormatContext = avformat_alloc_context();
+    if(!avFormatContext){
+        std::printf("ffmpeg -->  no format context can use");
         return -1;
     }
 
-    AVCodecContext *context = avcodec_alloc_context3(codec);
+    if(avformat_open_input(&avFormatContext,inputFilePath,NULL,NULL) != 0){
+        std::printf("ffmpeg -->  can not open file");;
+        return -1;
+    }
+
+    if(avformat_find_stream_info(avFormatContext,NULL) < 0){
+        std::printf("ffmpeg -->  av format info obtain error");
+        return -1;
+    }
+
+    int audioStreamIndex = -1;
+    for(int i = 0;i<avFormatContext->nb_streams;i++){
+        if(avFormatContext->streams[i]->codec->codec_type == AVMEDIA_TYPE_AUDIO){
+            audioStreamIndex = i;
+            break;
+        }
+    }
+
+    if(audioStreamIndex == -1){
+        std::printf("ffmpeg -->  has no audio stream");
+    }
+
+
+    AVCodecContext *context = avFormatContext->streams[audioStreamIndex]->codec;
     if (!context) {
         std::printf("ffmpeg -->  can not allocate codec context");
         return -1;
     }
 
+    const AVCodec *codec = avcodec_find_decoder(context->codec_id);
+    if (!codec) {
+        std::printf("ffmpeg -->  no coder can use");
+        return -1;
+    }
+    int result;
+    result = avcodec_parameters_to_context(context,avFormatContext->streams[audioStreamIndex]->codecpar);
+    if(result < 0){
+        std::printf("ffmpeg --> fail copy input parameter to output context");
+    }
     if (avcodec_open2(context, codec, NULL) < 0) {
         std::printf("ffmpeg --> can not open codec");
         return -1;
     }
+
+
+
 
     FILE *openFile = fopen(inputFilePath, "rb");
     if (!openFile) {
@@ -161,57 +215,33 @@ JNIEXPORT jint JNICALL Java_cn_skullmind_mbp_media_AudioCoder_generatePCMFile
 
     }
 
-    uint8_t inbuf[AUDIO_INBUF_SIZE + AV_INPUT_BUFFER_PADDING_SIZE];
-    uint8_t *data = inbuf;
-    size_t data_size = fread(inbuf, 1, AUDIO_INBUF_SIZE, openFile);
-    AVFrame *decode_frame = NULL;
+    av_dump_format(avFormatContext, audioStreamIndex, outputPath.c_str(), 0);
 
-    int result;
-    int len;
-    while (data_size > 0) {
-        if (!decode_frame) {
-            if (!(decode_frame = av_frame_alloc())) {
-                std::printf("ffmpeg --> can not allocate frame");
-                return -1;
-            }
-        }
 
-        result = av_parser_parse2(codecParserContext, context, &packet->data,
-                                  &packet->size, data, data_size, AV_NOPTS_VALUE, AV_NOPTS_VALUE,
-                                  0);
-        if (result < 0) {
-            std::printf("ffmpeg --> parsing occur error");
-            return -1;
-        }
-        data += result;
-        data_size -= result;
+    AVFrame *decode_frame = av_frame_alloc();
+    AVPacket *packet = av_packet_alloc();
+    av_init_packet(packet);
 
-        if (packet->size) {
-            decode(context, packet, decode_frame, outputFile);
-        }
 
-        if (data_size < AUDIO_REFILL_THRESH) {
-            memmove(inbuf, data, data_size);
-            data = inbuf;
-            len = fread(data + data_size, 1,
-                        AUDIO_INBUF_SIZE - data_size, openFile);
-            if (len > 0)
-                data_size += len;
-        }
+    while (av_read_frame(avFormatContext, packet) >= 0) {
+        // check if the packet belongs to a stream we are interested in, otherwise
+        // skip it
+     if (packet->stream_index == audioStreamIndex)
+            result = decode_packet(context, packet,decode_frame,outputFile);
+        av_packet_unref(packet);
 
+        if (result < 0)
+            break;
     }
 
 
-    packet->data = NULL;
-    packet->size = 0;
-    decode(context, packet, decode_frame, outputFile);
+    decode_packet(context, packet, decode_frame,outputFile);
 
     AVSampleFormat sampleFormat = context->sample_fmt;
     if (av_sample_fmt_is_planar(sampleFormat)) {
         sampleFormat = av_get_packed_sample_fmt(sampleFormat);
     }
 
-    int channelCount = context->channels;
     const char *fmt;
     if (get_format_from_sample_fmt(&fmt, sampleFormat) < 0) {
         goto end;
@@ -222,8 +252,8 @@ JNIEXPORT jint JNICALL Java_cn_skullmind_mbp_media_AudioCoder_generatePCMFile
     fclose(outputFile);
     fclose(openFile);
 
+    avformat_free_context(avFormatContext);
     avcodec_free_context(&context);
-    av_parser_close(codecParserContext);
     av_frame_free(&decode_frame);
     av_packet_free(&packet);
 

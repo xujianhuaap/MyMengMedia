@@ -8,6 +8,8 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import cn.skullmind.mbp.media.AudioCoder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileOutputStream
 
@@ -26,6 +28,7 @@ class MainActivity : AppCompatActivity() {
             file.createNewFile()
             resources.assets.open("test.mp3").copyTo(FileOutputStream(file))
             coder.generatePCMFile(file)
+
         }
     }
 
