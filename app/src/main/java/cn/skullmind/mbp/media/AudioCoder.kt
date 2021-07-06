@@ -7,7 +7,7 @@ class AudioCoder {
     external fun generatePCMFile(sourceFile: File):Int
     fun getPCMFileName(sourceFileName:String):String = sourceFileName.let {
         val values = it.split(".")
-        values[0].plus("_pcm.").plus(values[1])
+        values[0].plus(".pcm")
     }
     fun validSourceFileName(sourceFileName:String):Boolean {
         if(TextUtils.isEmpty(sourceFileName))return false

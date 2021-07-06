@@ -7,6 +7,8 @@ import android.media.AudioFormat.CHANNEL_OUT_MONO
 import android.media.AudioFormat.ENCODING_PCM_16BIT
 import android.media.AudioManager
 import android.media.AudioTrack
+import java.io.File
+import java.io.FileInputStream
 
 class MediaPlayer:Player{
     override fun play() {
@@ -39,7 +41,7 @@ class MediaPlayer:Player{
  * 放大缓存,寻求一个合适的折中点.
  * AudioTrack#PERFORMANCE_MODE_POWER_SAVING 这种是省电模式.通过增大缓存,可能会引起延迟较高的故障.
  */
-class AudioTrackPlayer(private val sessionId: Int) : Player {
+class AudioTrackPlayer(private val sessionId: Int,val sourceFile:File) : Player {
     private val playerImp:AudioTrack = AudioTrack.Builder().let{
         val audioAttributes = AudioAttributes.Builder()
             .setAllowedCapturePolicy(ALLOW_CAPTURE_BY_NONE)
@@ -66,12 +68,21 @@ class AudioTrackPlayer(private val sessionId: Int) : Player {
             .setBufferSizeInBytes(bufferSize)
             .setPerformanceMode(AudioTrack.PERFORMANCE_MODE_LOW_LATENCY)
             .setTransferMode(AudioTrack.MODE_STREAM)
-            .setOffloadedPlayback(true)//是否支持已卸载的路径播放
+            .setOffloadedPlayback(false)//是否支持已卸载的路径播放
             .setSessionId(sessionId)
             .build()
     }
     override fun play() {
-        if(playerImp.state != AudioTrack.STATE_UNINITIALIZED) playerImp.play()
+        if(playerImp.state != AudioTrack.STATE_UNINITIALIZED) {
+            playerImp.play()
+            val fis = FileInputStream(sourceFile)
+            val buffer = ByteArray(1024*10)
+            var len = 0
+            while ((fis.read(buffer).also { len = it })!= -1){
+                playerImp.write(buffer,0,len)
+            }
+
+        }
     }
 }
 interface Player{
