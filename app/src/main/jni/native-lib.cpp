@@ -37,53 +37,7 @@ JNIEXPORT jobject JNICALL Java_cn_skullmind_mbp_media_MediaPlayer_supportMediaFo
 
 static int audio_frame_count = 0;
 
-static int get_format_from_sample_fmt(const char **fmt,
-                                      enum AVSampleFormat sample_fmt) {
-    int i;
-    struct sample_fmt_entry {
-        enum AVSampleFormat sample_fmt;
-        const char *fmt_be, *fmt_le;
-    } sample_fmt_entries[] = {
-            {AV_SAMPLE_FMT_U8,  "u8",    "u8"},
-            {AV_SAMPLE_FMT_S16, "s16be", "s16le"},
-            {AV_SAMPLE_FMT_S32, "s32be", "s32le"},
-            {AV_SAMPLE_FMT_FLT, "f32be", "f32le"},
-            {AV_SAMPLE_FMT_DBL, "f64be", "f64le"},
-    };
-    *fmt = NULL;
 
-    for (i = 0; i < FF_ARRAY_ELEMS(sample_fmt_entries); i++) {
-        struct sample_fmt_entry *entry = &sample_fmt_entries[i];
-        if (sample_fmt == entry->sample_fmt) {
-            *fmt = AV_NE(entry->fmt_be, entry->fmt_le);
-            return 0;
-        }
-    }
-
-    fprintf(stderr,
-            "sample format %s is not supported as output format\n",
-            av_get_sample_fmt_name(sample_fmt));
-    return -1;
-}
-static int output_audio_frame(AVCodecContext *audio_dec_ctx, AVFrame *frame, FILE *audio_dst_file) {
-    size_t unpadded_linesize = frame->nb_samples * av_get_bytes_per_sample(
-            static_cast<AVSampleFormat>(frame->format));
-    printf("audio_frame n:%d nb_samples:%d pts:%s\n",
-           audio_frame_count++, frame->nb_samples,
-           av_ts2timestr(frame->pts, &audio_dec_ctx->time_base));
-
-    /* Write the raw audio data samples of the first plane. This works
-     * fine for packed formats (e.g. AV_SAMPLE_FMT_S16). However,
-     * most audio decoders output planar audio, which uses a separate
-     * plane of audio samples for each channel (e.g. AV_SAMPLE_FMT_S16P).
-     * In other words, this code will write only the first audio channel
-     * in these cases.
-     * You should use libswresample or libavfilter to convert the frame
-     * to packed data. */
-    fwrite(frame->extended_data[0], 1, unpadded_linesize, audio_dst_file);
-
-    return 0;
-}
 
 static int
 decode_packet(AVCodecContext *avCodecContext, const AVPacket *pkt, AVFrame *frame, FILE *destFile) {
@@ -94,32 +48,6 @@ decode_packet(AVCodecContext *avCodecContext, const AVPacket *pkt, AVFrame *fram
     }
 
     return ret;
-//    if(ret > 0){
-//
-//    }
-//    // get all the available frames from the decoder
-//    while (ret >= 0) {
-//        ret = avcodec_receive_frame(avCodecContext, frame);
-//        if (ret < 0) {
-//            // those two return values are special and mean there is no output
-//            // frame available, but there were no errors during decoding
-//            if (ret == AVERROR_EOF || ret == AVERROR(EAGAIN))
-//                return 0;
-//
-//            fprintf(stderr, "Error during decoding (%s)\n", av_err2str(ret));
-//            return ret;
-//        }
-//
-//        // write the frame data to output file
-//
-//        ret = output_audio_frame(avCodecContext, frame, destFile);
-//
-//        av_frame_unref(frame);
-//        if (ret < 0)
-//            return ret;
-//    }
-//
-//    return 0;
 }
 
 
