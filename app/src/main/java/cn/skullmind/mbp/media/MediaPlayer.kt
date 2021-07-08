@@ -3,8 +3,7 @@ package cn.skullmind.mbp.media
 import android.media.AudioAttributes
 import android.media.AudioAttributes.*
 import android.media.AudioFormat
-import android.media.AudioFormat.CHANNEL_OUT_MONO
-import android.media.AudioFormat.ENCODING_PCM_16BIT
+import android.media.AudioFormat.*
 import android.media.AudioManager
 import android.media.AudioTrack
 import java.io.File
@@ -42,17 +41,18 @@ class MediaPlayer:Player{
  * AudioTrack#PERFORMANCE_MODE_POWER_SAVING 这种是省电模式.通过增大缓存,可能会引起延迟较高的故障.
  */
 class AudioTrackPlayer(private val sessionId: Int,val sourceFile:File) : Player {
+    var bufferSize:Int = 0
     private val playerImp:AudioTrack = AudioTrack.Builder().let{
         val audioAttributes = AudioAttributes.Builder()
-            .setAllowedCapturePolicy(ALLOW_CAPTURE_BY_NONE)
-            .setContentType(CONTENT_TYPE_MUSIC)
+//            .setAllowedCapturePolicy(ALLOW_CAPTURE_BY_NONE)
+            .setContentType(CONTENT_TYPE_UNKNOWN)
             .setUsage(USAGE_MEDIA)
-            .setFlags(FLAG_AUDIBILITY_ENFORCED or FLAG_HW_AV_SYNC)
-            .setHapticChannelsMuted(false)//是否触觉静音 默认是false
-            .setLegacyStreamType(AudioManager.STREAM_MUSIC)
+//            .setFlags(FLAG_AUDIBILITY_ENFORCED or FLAG_HW_AV_SYNC)
+//            .setHapticChannelsMuted(false)//是否触觉静音 默认是false
+//            .setLegacyStreamType(AudioManager.STREAM_MUSIC)
             .build()
 
-        val sampleRate = 4000 * 2
+        val sampleRate = 4000 * 4
         val encodeFormat = ENCODING_PCM_16BIT
         val audioFormat = AudioFormat.Builder()
             .setSampleRate(sampleRate)
@@ -62,7 +62,7 @@ class AudioTrackPlayer(private val sessionId: Int,val sourceFile:File) : Player 
         //CHANNEL_OUT_MONO 单声道
         //CHANNEL_OUT_STEREO 双声道
 
-        val bufferSize = AudioTrack.getMinBufferSize(sampleRate,CHANNEL_OUT_MONO,encodeFormat)
+        bufferSize = AudioTrack.getMinBufferSize(sampleRate, CHANNEL_OUT_STEREO,encodeFormat)
         it.setAudioAttributes(audioAttributes)
             .setAudioFormat(audioFormat)
             .setBufferSizeInBytes(bufferSize)
@@ -76,7 +76,7 @@ class AudioTrackPlayer(private val sessionId: Int,val sourceFile:File) : Player 
         if(playerImp.state != AudioTrack.STATE_UNINITIALIZED) {
             playerImp.play()
             val fis = FileInputStream(sourceFile)
-            val buffer = ByteArray(1024*10)
+            val buffer = ByteArray(bufferSize)
             var len = 0
             while ((fis.read(buffer).also { len = it })!= -1){
                 playerImp.write(buffer,0,len)

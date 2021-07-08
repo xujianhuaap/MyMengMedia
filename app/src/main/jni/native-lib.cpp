@@ -7,12 +7,14 @@
 #include "cn_skullmind_mbp_media_AudioCoder.h"
 #include <string>
 #include "vector"
+
 extern "C" {
 #include <libavutil/imgutils.h>
 #include <libavutil/samplefmt.h>
 #include <libavutil/timestamp.h>
 #include <libavcodec/avcodec.h>
 #include <libavformat/avformat.h>
+#include <libswresample/swresample.h>
 }
 
 
@@ -33,7 +35,7 @@ JNIEXPORT jobject JNICALL Java_cn_skullmind_mbp_media_MediaPlayer_supportMediaFo
 
 }
 
-static int audio_frame_count =0;
+static int audio_frame_count = 0;
 
 static int get_format_from_sample_fmt(const char **fmt,
                                       enum AVSampleFormat sample_fmt) {
@@ -63,8 +65,7 @@ static int get_format_from_sample_fmt(const char **fmt,
             av_get_sample_fmt_name(sample_fmt));
     return -1;
 }
-static int output_audio_frame(AVCodecContext *audio_dec_ctx, AVFrame *frame,FILE * audio_dst_file)
-{
+static int output_audio_frame(AVCodecContext *audio_dec_ctx, AVFrame *frame, FILE *audio_dst_file) {
     size_t unpadded_linesize = frame->nb_samples * av_get_bytes_per_sample(
             static_cast<AVSampleFormat>(frame->format));
     printf("audio_frame n:%d nb_samples:%d pts:%s\n",
@@ -84,95 +85,99 @@ static int output_audio_frame(AVCodecContext *audio_dec_ctx, AVFrame *frame,FILE
     return 0;
 }
 
-static int decode_packet(AVCodecContext *avCodecContext, const AVPacket *pkt, AVFrame * frame,FILE* destFile)
-{
+static int
+decode_packet(AVCodecContext *avCodecContext, const AVPacket *pkt, AVFrame *frame, FILE *destFile) {
     int ret = 0;
-
-    // submit the packet to the decoder
-    ret = avcodec_send_packet(avCodecContext, pkt);
+    avcodec_decode_audio4(avCodecContext,frame, &ret, pkt);
     if (ret < 0) {
         fprintf(stderr, "Error submitting a packet for decoding (%s)\n", av_err2str(ret));
-        return ret;
     }
 
-    // get all the available frames from the decoder
-    while (ret >= 0) {
-        ret = avcodec_receive_frame(avCodecContext, frame);
-        if (ret < 0) {
-            // those two return values are special and mean there is no output
-            // frame available, but there were no errors during decoding
-            if (ret == AVERROR_EOF || ret == AVERROR(EAGAIN))
-                return 0;
-
-            fprintf(stderr, "Error during decoding (%s)\n", av_err2str(ret));
-            return ret;
-        }
-
-        // write the frame data to output file
-
-        ret = output_audio_frame(avCodecContext,frame,destFile);
-
-        av_frame_unref(frame);
-        if (ret < 0)
-            return ret;
-    }
-
-    return 0;
+    return ret;
+//    if(ret > 0){
+//
+//    }
+//    // get all the available frames from the decoder
+//    while (ret >= 0) {
+//        ret = avcodec_receive_frame(avCodecContext, frame);
+//        if (ret < 0) {
+//            // those two return values are special and mean there is no output
+//            // frame available, but there were no errors during decoding
+//            if (ret == AVERROR_EOF || ret == AVERROR(EAGAIN))
+//                return 0;
+//
+//            fprintf(stderr, "Error during decoding (%s)\n", av_err2str(ret));
+//            return ret;
+//        }
+//
+//        // write the frame data to output file
+//
+//        ret = output_audio_frame(avCodecContext, frame, destFile);
+//
+//        av_frame_unref(frame);
+//        if (ret < 0)
+//            return ret;
+//    }
+//
+//    return 0;
 }
-
-
 
 
 JNIEXPORT jint JNICALL Java_cn_skullmind_mbp_media_AudioCoder_generatePCMFile
         (JNIEnv *env, jobject thisObj, jobject sourceFileObj) {
     jclass fileClazz = env->GetObjectClass(sourceFileObj);
 
-    jmethodID getFileName = env->GetMethodID(fileClazz,"getName","()Ljava/lang/String;") ;
-    jstring  sourFileName = static_cast<jstring>(env->CallObjectMethod(sourceFileObj, getFileName));
+    jmethodID getFileName = env->GetMethodID(fileClazz, "getName", "()Ljava/lang/String;");
+    jstring sourFileName = static_cast<jstring>(env->CallObjectMethod(sourceFileObj, getFileName));
 
-    jmethodID getFilePath = env->GetMethodID(fileClazz,"getPath","()Ljava/lang/String;") ;
-    jstring  sourFilePath = static_cast<jstring>(env->CallObjectMethod(sourceFileObj, getFilePath));
+    jmethodID getFilePath = env->GetMethodID(fileClazz, "getPath", "()Ljava/lang/String;");
+    jstring sourFilePath = static_cast<jstring>(env->CallObjectMethod(sourceFileObj, getFilePath));
 
-    jmethodID getParentPath = env->GetMethodID(fileClazz,"getParent","()Ljava/lang/String;") ;
-    jstring  sourParentPath = static_cast<jstring>(env->CallObjectMethod(sourceFileObj, getParentPath));
+    jmethodID getParentPath = env->GetMethodID(fileClazz, "getParent", "()Ljava/lang/String;");
+    jstring sourParentPath = static_cast<jstring>(env->CallObjectMethod(sourceFileObj,
+                                                                        getParentPath));
 
 
-    const char *inputFilePath = env->GetStringUTFChars(sourFilePath, reinterpret_cast<jboolean*>(false));
-    const char *parentFilePath = env ->GetStringUTFChars(sourParentPath, reinterpret_cast<jboolean*>(false));
+    const char *inputFilePath = env->GetStringUTFChars(sourFilePath,
+                                                       reinterpret_cast<jboolean *>(false));
+    const char *parentFilePath = env->GetStringUTFChars(sourParentPath,
+                                                        reinterpret_cast<jboolean *>(false));
 
     jclass clazz = env->GetObjectClass(thisObj);
-    jmethodID funGetPCMFileName = env->GetMethodID(clazz,"getPCMFileName","(Ljava/lang/String;)Ljava/lang/String;");
-    jstring  outputStr = static_cast<jstring>((env)->CallObjectMethod(thisObj, funGetPCMFileName,
-                                                                      sourFileName));
-    const char *outFileName = env->GetStringUTFChars(outputStr, reinterpret_cast<jboolean*>(false));
+    jmethodID funGetPCMFileName = env->GetMethodID(clazz, "getPCMFileName",
+                                                   "(Ljava/lang/String;)Ljava/lang/String;");
+    jstring outputStr = static_cast<jstring>((env)->CallObjectMethod(thisObj, funGetPCMFileName,
+                                                                     sourFileName));
+    const char *outFileName = env->GetStringUTFChars(outputStr,
+                                                     reinterpret_cast<jboolean *>(false));
     std::printf("ffmpeg -->  no coder can use");
 
     av_register_all();
-    AVFormatContext*  avFormatContext = avformat_alloc_context();
-    if(!avFormatContext){
+    AVFormatContext *avFormatContext = avformat_alloc_context();
+    if (!avFormatContext) {
         std::printf("ffmpeg -->  no format context can use");
         return -1;
     }
 
-    if(avformat_open_input(&avFormatContext,inputFilePath,NULL,NULL) != 0){
+    if (avformat_open_input(&avFormatContext, inputFilePath, NULL, NULL) != 0) {
         std::printf("ffmpeg -->  can not open file");;
         return -1;
     }
 
-    if(avformat_find_stream_info(avFormatContext,NULL) < 0){
+    if (avformat_find_stream_info(avFormatContext, NULL) < 0) {
         std::printf("ffmpeg -->  av format info obtain error");
         return -1;
     }
 
     int audioStreamIndex = -1;
-    for(int i = 0;i<avFormatContext->nb_streams;i++){
-        if(avFormatContext->streams[i]->codec->codec_type == AVMEDIA_TYPE_AUDIO){
+    for (int i = 0; i < avFormatContext->nb_streams; i++) {
+        if (avFormatContext->streams[i]->codec->codec_type == AVMEDIA_TYPE_AUDIO) {
             audioStreamIndex = i;
             break;
         }
     }
 
-    if(audioStreamIndex == -1){
+    if (audioStreamIndex == -1) {
         std::printf("ffmpeg -->  has no audio stream");
     }
 
@@ -189,8 +194,9 @@ JNIEXPORT jint JNICALL Java_cn_skullmind_mbp_media_AudioCoder_generatePCMFile
         return -1;
     }
     int result;
-    result = avcodec_parameters_to_context(context,avFormatContext->streams[audioStreamIndex]->codecpar);
-    if(result < 0){
+    result = avcodec_parameters_to_context(context,
+                                           avFormatContext->streams[audioStreamIndex]->codecpar);
+    if (result < 0) {
         std::printf("ffmpeg --> fail copy input parameter to output context");
     }
     if (avcodec_open2(context, codec, NULL) < 0) {
@@ -199,7 +205,31 @@ JNIEXPORT jint JNICALL Java_cn_skullmind_mbp_media_AudioCoder_generatePCMFile
     }
 
 
+    //设置输入音频通道布局和输出音频通道布局
+    int64_t in_layout = context->channel_layout;
+    int64_t out_layout = AV_CH_LAYOUT_STEREO;
+    //设置输入音频样本格式和输出音频样本格式
+    AVSampleFormat in_sampleFormat = context->sample_fmt;
+    AVSampleFormat out_sampleFormat = AV_SAMPLE_FMT_S16;
+    //设置输入采样率和输出采样率
+    int in_samplerate = context->sample_rate;
+    int out_samplerate = 44100;
 
+    //分配一个大小为44100*2的空间用在存储转码后的音频数据
+    //奈奎斯特定理：采样频率为最高采样率*2时，可以完整保留原始信号中的信息
+    uint8_t * outbuffer = (uint8_t *)av_malloc(44100 * 2);
+
+    //得到通道数量
+    int nb_channels = av_get_channel_layout_nb_channels(AV_CH_LAYOUT_STEREO);
+
+
+    SwrContext * swrContext = swr_alloc();
+    //设置音频转换器上下文参数
+    swr_alloc_set_opts(swrContext,
+                       out_layout,out_sampleFormat,out_samplerate,
+                       in_layout,in_sampleFormat,in_samplerate, 0, NULL);
+    //初始化
+    swr_init(swrContext);
 
     FILE *openFile = fopen(inputFilePath, "rb");
     if (!openFile) {
@@ -207,7 +237,7 @@ JNIEXPORT jint JNICALL Java_cn_skullmind_mbp_media_AudioCoder_generatePCMFile
         return -1;
     }
 
-    std::string outputPath = std::string(parentFilePath)+"/"+std::string (outFileName);
+    std::string outputPath = std::string(parentFilePath) + "/" + std::string(outFileName);
     FILE *outputFile = fopen(outputPath.c_str(), "wb");
     if (!outputFile) {
         av_free(context);
@@ -226,29 +256,26 @@ JNIEXPORT jint JNICALL Java_cn_skullmind_mbp_media_AudioCoder_generatePCMFile
     while (av_read_frame(avFormatContext, packet) >= 0) {
         // check if the packet belongs to a stream we are interested in, otherwise
         // skip it
-     if (packet->stream_index == audioStreamIndex)
-            result = decode_packet(context, packet,decode_frame,outputFile);
+        if (packet->stream_index == audioStreamIndex){
+            result = decode_packet(context, packet, decode_frame, outputFile);
+            if(result > 0){
+                //转换成pcm
+                swr_convert(swrContext,&outbuffer,44100 * 2,(const uint8_t **)decode_frame->data, decode_frame->nb_samples);
+                //获取缓冲区大小
+                int buffersize = av_samples_get_buffer_size(NULL,nb_channels, decode_frame->nb_samples,AV_SAMPLE_FMT_S16, 1);
+                std::printf("BUFFERSIZE    === %d", buffersize);
+                std::printf("OUTBUFFERSIZE === %d", strlen((const char*)outbuffer));
+
+                fwrite(outbuffer, 1 ,buffersize, outputFile);
+            }
+        }
+
         av_packet_unref(packet);
 
         if (result < 0)
             break;
     }
 
-
-    decode_packet(context, packet, decode_frame,outputFile);
-
-    AVSampleFormat sampleFormat = context->sample_fmt;
-    if (av_sample_fmt_is_planar(sampleFormat)) {
-        sampleFormat = av_get_packed_sample_fmt(sampleFormat);
-    }
-
-    const char *fmt;
-    if (get_format_from_sample_fmt(&fmt, sampleFormat) < 0) {
-        goto end;
-    }
-
-
-    end:
     fclose(outputFile);
     fclose(openFile);
 
