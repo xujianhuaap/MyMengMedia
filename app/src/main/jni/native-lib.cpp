@@ -70,7 +70,6 @@ JNIEXPORT jint JNICALL Java_cn_skullmind_mbp_media_AudioCoder_generatePCMFile
                                                        reinterpret_cast<jboolean *>(false));
     const char *parentFilePath = env->GetStringUTFChars(sourParentPath,
                                                         reinterpret_cast<jboolean *>(false));
-
     jclass clazz = env->GetObjectClass(thisObj);
     jmethodID funGetPCMFileName = env->GetMethodID(clazz, "getPCMFileName",
                                                    "(Ljava/lang/String;)Ljava/lang/String;");
@@ -211,7 +210,9 @@ JNIEXPORT jint JNICALL Java_cn_skullmind_mbp_media_AudioCoder_generatePCMFile
     avcodec_free_context(&context);
     av_frame_free(&decode_frame);
     av_packet_free(&packet);
-
+    env->ReleaseStringUTFChars(sourFilePath,inputFilePath);
+    env->ReleaseStringUTFChars(sourParentPath,parentFilePath);
+    env->ReleaseStringUTFChars(outputStr,outFileName);
     return 0;
 }
 
