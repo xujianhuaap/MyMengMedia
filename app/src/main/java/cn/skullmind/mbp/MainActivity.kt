@@ -11,10 +11,7 @@ import cn.skullmind.mbp.media.AudioCoder
 import cn.skullmind.mbp.media.AudioTrackPlayer
 import cn.skullmind.mbp.media.MediaPlayer
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.MainScope
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import java.io.File
 import java.io.FileOutputStream
 
@@ -35,15 +32,18 @@ class MainActivity : AppCompatActivity() {
 
 
             val pcmFile = File(file.parent,coder.getPCMFileName(file.name))
-            if(!pcmFile.exists()){
-                coder.generatePCMFile(file)
-            }
             val audioManager = getSystemService(AudioManager::class.java) as AudioManager
-            val player = AudioTrackPlayer(audioManager.generateAudioSessionId(),pcmFile
-            )
-
+            val player = AudioTrackPlayer(audioManager.generateAudioSessionId(),pcmFile)
             Thread {
-                player.play()
+                if(pcmFile.exists()){
+                    pcmFile.delete()
+                }
+                pcmFile.createNewFile()
+                coder.generatePCMFile(file)
+                if(pcmFile.canRead()){
+                    player.play()
+                }
+
             }.start()
 
         }

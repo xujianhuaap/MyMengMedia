@@ -203,6 +203,7 @@ JNIEXPORT jint JNICALL Java_cn_skullmind_mbp_media_AudioCoder_generatePCMFile
             break;
     }
 
+    fflush(outputFile);
     fclose(outputFile);
     fclose(openFile);
 
