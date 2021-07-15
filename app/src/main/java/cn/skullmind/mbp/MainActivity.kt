@@ -34,7 +34,7 @@ class MainActivity : AppCompatActivity() {
             val pcmFile = File(file.parent,coder.getPCMFileName(file.name))
             val audioManager = getSystemService(AudioManager::class.java) as AudioManager
             val player = AudioTrackPlayer(audioManager.generateAudioSessionId(),pcmFile)
-            Thread {
+            GlobalScope.launch {
                 if(pcmFile.exists()){
                     pcmFile.delete()
                 }
@@ -43,9 +43,7 @@ class MainActivity : AppCompatActivity() {
                 if(pcmFile.canRead()){
                     player.play()
                 }
-
-            }.start()
-
+            }
         }
     }
 
