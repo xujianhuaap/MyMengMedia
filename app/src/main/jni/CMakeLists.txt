@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.10.2)
 set(JNI_LIBS /home/xu/Documents/codes/codes_c/MyMengMedia/app/jnilibs)
 set(FFMPEG_LIBS ${JNI_LIBS}/ffmpeg)
 
-add_library(native-lib SHARED native-lib.cpp)
+add_library(native-lib SHARED native-lib.cpp video-capture.cpp)
 include_directories(include)
 #NDK已经够建后的库,而且在cmake能够找到的路径可以直接使用
 #findlibrary()找到的是一个变量(log-lib)
@@ -43,6 +43,11 @@ message("[info] --> ${FFMPEG_LIBS}/${CMAKE_ANDROID_ARCH_ABI}/libswscale.so")
 set_target_properties(swscale-lib PROPERTIES IMPORTED_LOCATION ${FFMPEG_LIBS}/${CMAKE_ANDROID_ARCH_ABI}/lib/libswscale.so)
 
 
+add_library(device-lib SHARED IMPORTED)
+message("[info] --> ${FFMPEG_LIBS}/${CMAKE_ANDROID_ARCH_ABI}/libavdevice.so")
+set_target_properties(device-lib PROPERTIES IMPORTED_LOCATION ${FFMPEG_LIBS}/${CMAKE_ANDROID_ARCH_ABI}/lib/libavdevice.so)
+
+
 include_directories(${FFMPEG_LIBS}/${CMAKE_ANDROID_ARCH_ABI}/include)
 target_link_libraries(native-lib  AvFormat-lib  avdevice-lib avfilter-lib avutil-lib
-        avcodec-lib swresample-lib  swscale-lib ${log-lib})
+        avcodec-lib swresample-lib  swscale-lib device-lib  ${log-lib})

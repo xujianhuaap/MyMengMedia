@@ -9,7 +9,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import cn.skullmind.mbp.media.AudioCoder
 import cn.skullmind.mbp.media.AudioTrackPlayer
-import cn.skullmind.mbp.media.MediaPlayer
+import cn.skullmind.mbp.media.VideoCapture
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.coroutines.*
 import java.io.File
@@ -24,7 +24,7 @@ class MainActivity : AppCompatActivity() {
         findViewById<FloatingActionButton>(R.id.fab).setOnClickListener { view ->
             Toast.makeText(this, OSInfo().getOSString(), Toast.LENGTH_LONG).show()
             val coder = AudioCoder()
-
+            val recorder = VideoCapture()
             val file = File(getExternalFilesDir(DIRECTORY_MUSIC),"test.mp3")
             if(file.exists()) file.delete()
             file.createNewFile()
@@ -32,6 +32,7 @@ class MainActivity : AppCompatActivity() {
 
 
             val pcmFile = File(file.parent,coder.getPCMFileName(file.name))
+            recorder.captureCameraData(pcmFile)
             val audioManager = getSystemService(AudioManager::class.java) as AudioManager
             val player = AudioTrackPlayer(audioManager.generateAudioSessionId(),pcmFile)
             GlobalScope.launch {
