@@ -8,6 +8,7 @@
 #include <string>
 #include "vector"
 
+
 extern "C" {
 #include <libavutil/imgutils.h>
 #include <libavutil/samplefmt.h>
@@ -34,9 +35,6 @@ JNIEXPORT jobject JNICALL Java_cn_skullmind_mbp_media_MediaPlayer_supportMediaFo
     return env->NewCharArray(formats.size());
 
 }
-
-static int audio_frame_count = 0;
-
 
 
 static int

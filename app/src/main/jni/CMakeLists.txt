@@ -1,13 +1,31 @@
 cmake_minimum_required(VERSION 3.10.2)
-#set(ANDROID_NDK /home/xu/Android/Sdk/ndk/21.1.6352462)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11")
+set(ANDROID_NDK /home/xu/Android/Sdk/ndk/21.1.6352462)
 set(JNI_LIBS /home/xu/Documents/codes/codes_c/MyMengMedia/app/jnilibs)
 set(FFMPEG_LIBS ${JNI_LIBS}/ffmpeg)
 
-add_library(native-lib SHARED native-lib.cpp video-capture.cpp)
-include_directories(include)
-#NDK已经够建后的库,而且在cmake能够找到的路径可以直接使用
-#findlibrary()找到的是一个变量(log-lib)
-find_library(log-lib log)
+
+
+set(android-libs
+        android
+        EGL
+        GLESv3
+        OpenSLES
+        log
+        m
+        z
+        )
+
+
+file( GLOB_RECURSE src_files
+        ${CMAKE_SOURCE_DIR}/*.cpp
+        ${CMAKE_SOURCE_DIR}/utils/*.cpp
+        ${CMAKE_SOURCE_DIR}/recorder/*.cpp
+        ${CMAKE_SOURCE_DIR}/render/audio/*.cpp)
+add_library(native-lib SHARED ${src_files})
+
+
+
 #NDK中包含一些源码,可以直接包含到你的原生库中,将android_native_app_glue.c构建一个静态库,关联到native-lib这个库
 #glue负责管理NativeActivity生命周期和触摸输入
 #add_library(app-glue STATIC ${ANDROID_NDK}/sources/android/native_app_glue/android_native_app_glue.c)
@@ -48,6 +66,12 @@ message("[info] --> ${FFMPEG_LIBS}/${CMAKE_ANDROID_ARCH_ABI}/libavdevice.so")
 set_target_properties(device-lib PROPERTIES IMPORTED_LOCATION ${FFMPEG_LIBS}/${CMAKE_ANDROID_ARCH_ABI}/lib/libavdevice.so)
 
 
-include_directories(${FFMPEG_LIBS}/${CMAKE_ANDROID_ARCH_ABI}/include)
+
 target_link_libraries(native-lib  AvFormat-lib  avdevice-lib avfilter-lib avutil-lib
-        avcodec-lib swresample-lib  swscale-lib device-lib  ${log-lib})
+        avcodec-lib swresample-lib  swscale-lib device-lib  ${android-libs})
+
+include_directories(include
+        utils/include
+        recorder/include
+        render/audio
+        ${FFMPEG_LIBS}/${CMAKE_ANDROID_ARCH_ABI}/include)

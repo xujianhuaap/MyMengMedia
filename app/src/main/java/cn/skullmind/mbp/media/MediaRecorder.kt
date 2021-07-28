@@ -12,3 +12,7 @@ class VideoCapture {
         }
     }
 }
+
+class MediaRecorder {
+    var nativeContextHandle = 0L
+}
