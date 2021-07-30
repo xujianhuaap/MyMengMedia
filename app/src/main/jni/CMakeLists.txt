@@ -1,6 +1,5 @@
 cmake_minimum_required(VERSION 3.10.2)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11")
-set(ANDROID_NDK /home/xu/Android/Sdk/ndk/21.1.6352462)
 set(JNI_LIBS /home/xu/Documents/codes/codes_c/MyMengMedia/app/jnilibs)
 set(FFMPEG_LIBS ${JNI_LIBS}/ffmpeg)
 
@@ -70,8 +69,10 @@ set_target_properties(device-lib PROPERTIES IMPORTED_LOCATION ${FFMPEG_LIBS}/${C
 target_link_libraries(native-lib  AvFormat-lib  avdevice-lib avfilter-lib avutil-lib
         avcodec-lib swresample-lib  swscale-lib device-lib  ${android-libs})
 
-include_directories(include
-        utils/include
-        recorder/include
-        render/audio
+target_include_directories(native-lib PUBLIC
+        ${CMAKE_SOURCE_DIR}/include
+        ${CMAKE_SOURCE_DIR}/utils/include
+        ${CMAKE_SOURCE_DIR}/recorder/include
+        ${CMAKE_SOURCE_DIR}/render/audio
+        ${CMAKE_SOURCE_DIR}/bean
         ${FFMPEG_LIBS}/${CMAKE_ANDROID_ARCH_ABI}/include)

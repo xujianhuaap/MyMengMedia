@@ -9,8 +9,7 @@
 #include <libavutil/channel_layout.h>
 #include "AudioRecorder.h"
 
-#define DEFAULT_AUDIO_SAMPLE_RATE    44100
-#define DEFAULT_CHANNEL_LAYOUT AV_CH_LAYOUT_STEREO
+
 
 class MediaRecorderContext {
 public:
