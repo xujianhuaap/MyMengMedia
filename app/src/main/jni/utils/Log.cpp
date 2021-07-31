@@ -3,6 +3,7 @@
 //
 
 #include "include/Log.h"
+#include <stdarg.h>
 
 void Log::d(const char *msg)  {
     LOGCATD("%s", msg);
@@ -19,3 +20,4 @@ void Log::i(const char *msg) {
 void Log::v(const char *msg) {
     LOGCATV("%s", msg);
 }
+

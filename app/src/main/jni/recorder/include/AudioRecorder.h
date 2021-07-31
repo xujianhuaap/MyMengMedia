@@ -27,24 +27,25 @@ public:
     int stopRecord();
 
 private:
-    static void StartH264EncoderThread(AudioRecorder * context);
+    static void StartACCEncoderThread(AudioRecorder * recorder);
     int encodeFrame(AVFrame* avFrame);
 private:
-    ThreadSafeQueue<NativeImage*> m_queue;
+    ThreadSafeQueue<AudioFrame*> m_queue;
     char m_outputUrl[1024]={0};
     int m_frameIndex = 0;
     int m_sampleRate;
     int m_channelLayout;
     int m_sampleFormat;
-    AvPacket m_avPacket;
-    AVFrame *avFrame = nullptr;
+    int m_frame_buffer_size;
+    AVPacket m_avPacket;
+    AVFrame *m_av_frame = nullptr;
     uint8_t *m_pFrameBuffer= nullptr;
     AVCodec *m_av_codec= nullptr;
     AVStream *m_av_stream= nullptr;
     AVCodecContext *m_AvCodecContext= nullptr;
     AVFormatContext *m_formatContext= nullptr;
-    thread *m_encodeThread=nullptr;
-    SwsContext *m_swsContext=nullptr;
+    std::thread *m_encodeThread=nullptr;
+    SwrContext *m_swsContext=nullptr;
     volatile int m_exit =0;
 
 };
