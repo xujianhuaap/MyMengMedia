@@ -103,7 +103,7 @@ int AudioRecorder::startRecord() {
     }
 
     AVOutputFormat* avOutputFormat = m_formatContext->oformat;
-    this->m_av_codec = avcodec_find_decoder(avOutputFormat->audio_codec);
+    this->m_av_codec = avcodec_find_encoder(avOutputFormat->audio_codec);
 
     if(this->m_av_codec == nullptr){
         Log::d("fail to find codec");
@@ -133,6 +133,8 @@ int AudioRecorder::startRecord() {
     m_av_frame->nb_samples =m_AvCodecContext->frame_size;
     m_av_frame->format = m_AvCodecContext->sample_fmt;
 
+    LOGCATE("StartRecord channels=%d ,m_frameSize=%d, format=%d", m_AvCodecContext->channels,
+            m_AvCodecContext->frame_size,m_AvCodecContext->sample_fmt);
     m_frame_buffer_size = av_samples_get_buffer_size(nullptr,m_AvCodecContext->channels,
            m_AvCodecContext->frame_size, m_AvCodecContext->sample_fmt,1);
     m_pFrameBuffer = (uint8_t*)av_malloc(m_frame_buffer_size);

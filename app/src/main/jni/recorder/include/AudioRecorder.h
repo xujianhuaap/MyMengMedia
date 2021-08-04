@@ -31,7 +31,7 @@ private:
     int encodeFrame(AVFrame* avFrame);
 private:
     ThreadSafeQueue<AudioFrame*> m_queue;
-    char m_outputUrl[4096]={0};
+    char m_outputUrl[1024]={0};
     int m_frameIndex = 0;
     int m_sampleRate;
     int m_channelLayout;
