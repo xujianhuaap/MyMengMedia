@@ -20,7 +20,7 @@ extern "C" {
 #define DEFAULT_CHANNEL_LAYOUT AV_CH_LAYOUT_STEREO
 class AudioRecorder {
 public:
-    AudioRecorder(const char* outputUrl,int sampleRate,int channelLayout,int sampleFormat);
+     AudioRecorder(const char* outputUrl,int sampleRate,int channelLayout,int sampleFormat);
     ~AudioRecorder();
     int startRecord();
     int onFrameEncode(AudioFrame* frame);
@@ -31,7 +31,7 @@ private:
     int encodeFrame(AVFrame* avFrame);
 private:
     ThreadSafeQueue<AudioFrame*> m_queue;
-    char m_outputUrl[1024]={0};
+    char m_outputUrl[4096]={0};
     int m_frameIndex = 0;
     int m_sampleRate;
     int m_channelLayout;

@@ -6,7 +6,6 @@
 #define MYMENGMEDIA_MEDIARECORDERCONTEXT_H
 #include <mutex>
 #include <jni.h>
-#include <libavutil/channel_layout.h>
 #include "AudioRecorder.h"
 
 
@@ -18,6 +17,7 @@ public:
     static void CreateMediaContext(JNIEnv *jniEnv, jobject instance);
     static void StoreMediaRecorderContext(JNIEnv *jniEnv,jobject instance, MediaRecorderContext* ctx);
     static void DeleteMediaRecorderContext(JNIEnv *jniEnv,jobject instance);
+    static MediaRecorderContext* GetContext(JNIEnv *env,jobject thisObj);
     int startRecordAudio(const char* outputUrl);
     int stopRecord();
     void onAudioData(uint8_t* pData,int size);

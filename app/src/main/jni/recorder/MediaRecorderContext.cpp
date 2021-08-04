@@ -3,7 +3,6 @@
 //
 
 #include <Log.h>
-#include <libavutil/samplefmt.h>
 #include "include/MediaRecorderContext.h"
 
 jfieldID MediaRecorderContext::s_contextHandle =0L;
@@ -47,13 +46,21 @@ void MediaRecorderContext::DeleteMediaRecorderContext(JNIEnv *jniEnv, jobject in
     jniEnv->SetLongField(instance,s_contextHandle,0L);
 }
 
+
+MediaRecorderContext* MediaRecorderContext::GetContext(JNIEnv *env, jobject thisObj) {
+    if(s_contextHandle == nullptr){
+        Log::d("get context failure");
+        return nullptr;
+    }
+    MediaRecorderContext* p = reinterpret_cast<MediaRecorderContext*>(env->GetLongField(thisObj,s_contextHandle));
+    return p;
+}
 int MediaRecorderContext::startRecordAudio(const char *outputUrl) {
     std::unique_lock<std::mutex> lock(m_mutex);
     if(m_audio_recorder == nullptr){
         m_audio_recorder = new AudioRecorder(outputUrl,DEFAULT_AUDIO_SAMPLE_RATE,DEFAULT_CHANNEL_LAYOUT,AV_SAMPLE_FMT_S16);
-        m_audio_recorder->startRecord();
     }
-
+    m_audio_recorder->startRecord();
     return 0;
 }
 

@@ -15,9 +15,9 @@ extern "C" {
     #include <unistd.h>
 }
 
-AudioRecorder::AudioRecorder(const char *outputUrl, int sampleRate,
+AudioRecorder:: AudioRecorder(const char *outputUrl, int sampleRate,
         int channelLayout, int sampleFormat) {
-        Log::d(std::strcat("audio recorder [outputUrl] -->",outputUrl));
+        Log::d(outputUrl);
         strcpy(m_outputUrl,outputUrl);
         m_sampleRate = sampleRate;
         m_sampleFormat = sampleFormat;
@@ -96,7 +96,7 @@ int AudioRecorder::startRecord() {
         return -1;
     }
 
-    this->m_av_stream = avformat_new_stream(m_formatContext, m_formatContext->audio_codec);
+    this->m_av_stream = avformat_new_stream(m_formatContext, nullptr);
     if(m_av_stream == nullptr){
         Log::d("failure to new stream");
         return -1;
@@ -118,16 +118,16 @@ int AudioRecorder::startRecord() {
     this->m_AvCodecContext->sample_fmt = AV_SAMPLE_FMT_FLTP;
     this->m_AvCodecContext->sample_rate = DEFAULT_AUDIO_SAMPLE_RATE;
     this->m_AvCodecContext->bit_rate = DEFAULT_AUDIO_BIT_RATE;
-    this->m_AvCodecContext->channels = av_get_channel_layout_nb_channels(
-            DEFAULT_CHANNEL_LAYOUT);
     this->m_AvCodecContext->channel_layout = DEFAULT_CHANNEL_LAYOUT;
+    this->m_AvCodecContext->channels = av_get_channel_layout_nb_channels(
+            m_AvCodecContext->channel_layout);
     result = avcodec_open2(m_AvCodecContext,m_av_codec, nullptr);
     if(result < 0){
         Log::d("can not open codec");
         return -1;
     }
     int streamIndex = m_av_stream->index;
-    av_dump_format(m_formatContext,streamIndex,m_outputUrl,1);
+    av_dump_format(m_formatContext,0,m_outputUrl,1);
 
     m_av_frame = av_frame_alloc();
     m_av_frame->nb_samples =m_AvCodecContext->frame_size;
