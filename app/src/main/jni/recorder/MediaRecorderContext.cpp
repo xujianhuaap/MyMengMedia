@@ -66,6 +66,7 @@ int MediaRecorderContext::startRecordAudio(const char *outputUrl) {
 
 
 int MediaRecorderContext::stopRecord() {
+    std::unique_lock<std::mutex> lock(m_mutex);
     if(m_audio_recorder != nullptr){
         m_audio_recorder->stopRecord();
         delete m_audio_recorder;

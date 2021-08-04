@@ -41,7 +41,7 @@ int AudioRecorder::stopRecord() {
         delete m_encodeThread;
         m_encodeThread = nullptr;
         int result = encodeFrame(nullptr);
-        if(result > 0){
+        if(result >= 0){
             av_write_trailer(m_formatContext);
         }
     }
@@ -62,6 +62,7 @@ int AudioRecorder::stopRecord() {
         m_av_frame = nullptr;
     }
 
+
     if(m_pFrameBuffer != nullptr){
         av_free(m_pFrameBuffer);
         m_pFrameBuffer = nullptr;
@@ -74,9 +75,11 @@ int AudioRecorder::stopRecord() {
 
     if(m_formatContext != nullptr){
         avio_close(m_formatContext->pb);
-        avformat_free_context(m_formatContext);
+//        avformat_free_context(m_formatContext); 此时不能释放 formatContext
         m_formatContext = nullptr;
     }
+
+
 
     return 0;
 }

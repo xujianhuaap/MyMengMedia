@@ -1,20 +1,16 @@
 package cn.skullmind.mbp.audio
 
-import android.Manifest
-import android.content.pm.PackageManager
 import android.media.AudioFormat
 import android.media.AudioRecord
 import android.media.MediaRecorder
 import android.util.Log
-import androidx.core.app.ActivityCompat
 import cn.skullmind.mbp.media.PRO_TAG
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
 
 class AudioJob(private val listener: RecordStatusListener) {
     lateinit var audioRecord: AudioRecord
-    val channel = Channel<Int>()
+    var isCancel = false
 
     fun start() {
         GlobalScope.launch {
@@ -42,7 +38,8 @@ class AudioJob(private val listener: RecordStatusListener) {
             val buffer = ByteArray(4096)
             try {
                 while (!Thread.currentThread().isInterrupted
-                    || channel.receive() == EOF_FLAG) {
+                    || isCancel
+                ) {
                     val result = audioRecord.read(buffer, 0, 4096)
                     if (result > 0) {
                         listener.onAudioData(buffer, result)
@@ -57,14 +54,11 @@ class AudioJob(private val listener: RecordStatusListener) {
             }
 
             audioRecord.release()
-            channel.close()
         }
     }
 
-    fun cancel(){
-        GlobalScope.launch {
-            channel.send(EOF_FLAG)
-        }
+    fun cancel() {
+        isCancel = true
     }
 
 
@@ -72,7 +66,6 @@ class AudioJob(private val listener: RecordStatusListener) {
         private const val DEFAULT_SAMPLE_RATE = 44100
         private const val DEFAULT_CHANNEL_LAYOUT = AudioFormat.CHANNEL_IN_STEREO
         private const val DEFAULT_SAMPLE_FORMAT = AudioFormat.ENCODING_PCM_16BIT
-        private const val EOF_FLAG  = 0x00
     }
 }
 

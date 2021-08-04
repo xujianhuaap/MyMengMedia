@@ -44,6 +44,7 @@ class AudioActivity : FragmentActivity() {
         binding.tvStopRecord.setOnClickListener(this::clkStopRecord)
         binding.tvPlayerRecord.setOnClickListener(this::clkPlayRecord)
         audioJob = AudioJob(callBack)
+        mediaRecorder = MediaRecorderContext()
 
     }
 
@@ -55,9 +56,8 @@ class AudioActivity : FragmentActivity() {
         }
         getAudioPath(this, "aac")?.apply {
             audioJob.start()
-            mediaRecorder = MediaRecorderContext()
             mediaRecorder.createContext()
-            mediaRecorder.startRecordAudio(this.path)
+            mediaRecorder.startRecordAudio(this.absolutePath)
         }
 
     }
