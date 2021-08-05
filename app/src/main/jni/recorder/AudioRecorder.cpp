@@ -84,7 +84,6 @@ int AudioRecorder::stopRecord() {
     return 0;
 }
 int AudioRecorder::startRecord() {
-    Log::d("audio recorder start record");
     int result = -1;
     result = avformat_alloc_output_context2(&m_formatContext, nullptr,
             nullptr,m_outputUrl);
@@ -136,7 +135,7 @@ int AudioRecorder::startRecord() {
     m_av_frame->nb_samples =m_AvCodecContext->frame_size;
     m_av_frame->format = m_AvCodecContext->sample_fmt;
 
-    LOGCATE("StartRecord channels=%d ,m_frameSize=%d, format=%d", m_AvCodecContext->channels,
+    Log::d("StartRecord channels=%d ,m_frameSize=%d, format=%d", m_AvCodecContext->channels,
             m_AvCodecContext->frame_size,m_AvCodecContext->sample_fmt);
     m_frame_buffer_size = av_samples_get_buffer_size(nullptr,m_AvCodecContext->channels,
            m_AvCodecContext->frame_size, m_AvCodecContext->sample_fmt,1);
@@ -180,7 +179,7 @@ void AudioRecorder::StartACCEncoderThread(AudioRecorder *recorder) {
         AVFrame *avFrame = recorder->m_av_frame;
 
         int result = swr_convert(recorder->m_swsContext,avFrame->data,avFrame->nb_samples,
-                                 (const uint8_t**)&(audioFrame->data),audioFrame->dataSize);
+                                 (const uint8_t**)&(audioFrame->data),audioFrame->dataSize/4);
         Log::d("start aac encode thread");
         if(result > 0){
             avFrame->pts = recorder->m_frameIndex ++;
@@ -207,7 +206,7 @@ int AudioRecorder::encodeFrame(AVFrame *avFrame) {
         }
 
 
-        LOGCATE("SingleAudioRecorder::EncodeFrame frame pts=%ld, size=%d", m_avPacket.pts, m_avPacket.size);
+        Log::d("SingleAudioRecorder::EncodeFrame frame pts=%ld, size=%d", m_avPacket.pts, m_avPacket.size);
         m_avPacket.stream_index = this->m_av_stream->index;
         av_interleaved_write_frame(m_formatContext,&m_avPacket);
         av_packet_unref(&m_avPacket);
