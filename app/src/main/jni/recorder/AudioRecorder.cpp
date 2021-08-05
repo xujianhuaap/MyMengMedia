@@ -178,6 +178,7 @@ void AudioRecorder::StartACCEncoderThread(AudioRecorder *recorder) {
         AudioFrame* audioFrame = recorder->m_queue.pop();
         AVFrame *avFrame = recorder->m_av_frame;
 
+        //??? audioFrame->dataSize/4 很奇怪
         int result = swr_convert(recorder->m_swsContext,avFrame->data,avFrame->nb_samples,
                                  (const uint8_t**)&(audioFrame->data),audioFrame->dataSize/4);
         Log::d("start aac encode thread");
