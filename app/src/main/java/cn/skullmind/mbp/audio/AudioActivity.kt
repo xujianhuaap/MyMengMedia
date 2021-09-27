@@ -6,7 +6,6 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
-import android.view.View
 import androidx.core.app.ActivityCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.FragmentActivity
@@ -23,7 +22,7 @@ fun startAudioActivity(context: Context) {
 class AudioActivity : FragmentActivity() {
 
 
-    lateinit var binding: ActivityAudioBinding
+    private lateinit var binding: ActivityAudioBinding
     lateinit var audioJob: AudioJob
     lateinit var mediaRecorder: MediaRecorderContext
     private val callBack = object : RecordStatusListener {
@@ -39,18 +38,25 @@ class AudioActivity : FragmentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = DataBindingUtil.setContentView(this, R.layout.activity_audio)
-        binding.tvStartRecord.setOnClickListener(this::clkStartRecord)
-        binding.tvStopRecord.setOnClickListener(this::clkStopRecord)
-        binding.tvPlayerRecord.setOnClickListener(this::clkPlayRecord)
-        audioJob = AudioJob(callBack)
-        mediaRecorder = MediaRecorderContext()
+        initData()
 
     }
 
+    private fun initData() {
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_audio)
+        binding.also {
+            it.tvStartRecord.setOnClickListener { clkStartRecord() }
+            it.tvStopRecord.setOnClickListener { clkStopRecord() }
+            it.tvPlayerRecord.setOnClickListener { clkPlayRecord() }
+        }
 
-    private fun clkStartRecord(view: View) {
-        if (!hasPermissionsGranted(permissions = REQUEST_PERMISSIONS)) {
+        audioJob = AudioJob(callBack)
+        mediaRecorder = MediaRecorderContext()
+    }
+
+
+    private fun clkStartRecord() {
+        if (!hasPermissionsGranted()) {
             requestPermissions(REQUEST_PERMISSIONS, PERMISSION_REQUEST_CODE)
             return
         }
@@ -62,19 +68,19 @@ class AudioActivity : FragmentActivity() {
 
     }
 
-    private fun clkStopRecord(view: View) {
+    private fun clkStopRecord() {
         audioJob.cancel()
         mediaRecorder.stopRecord()
         mediaRecorder.destroyContext()
     }
 
-    private fun clkPlayRecord(view: View) {
-
+    private fun clkPlayRecord() {
+        //TODO
     }
 
-    fun hasPermissionsGranted(permissions: Array<String>): Boolean {
-        for (permission in permissions) {
-            if (ActivityCompat.checkSelfPermission(this, permission!!)
+    private fun hasPermissionsGranted(): Boolean {
+        for (permission in REQUEST_PERMISSIONS) {
+            if (ActivityCompat.checkSelfPermission(this, permission)
                 != PackageManager.PERMISSION_GRANTED
             ) {
                 return false
