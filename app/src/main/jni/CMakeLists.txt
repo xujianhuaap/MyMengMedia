@@ -70,9 +70,11 @@ target_link_libraries(native-lib  AvFormat-lib  avdevice-lib avfilter-lib avutil
         avcodec-lib swresample-lib  swscale-lib device-lib  ${android-libs})
 
 target_include_directories(native-lib PUBLIC
+        ${CMAKE_SOURCE_DIR}/glm
         ${CMAKE_SOURCE_DIR}/include
         ${CMAKE_SOURCE_DIR}/utils/include
         ${CMAKE_SOURCE_DIR}/recorder/include
         ${CMAKE_SOURCE_DIR}/render/audio
+        ${CMAKE_SOURCE_DIR}/render
         ${CMAKE_SOURCE_DIR}/bean
         ${FFMPEG_LIBS}/${CMAKE_ANDROID_ARCH_ABI}/include)

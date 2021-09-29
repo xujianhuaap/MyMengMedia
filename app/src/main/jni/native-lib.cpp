@@ -5,6 +5,8 @@
 #include <cn_skullmind_mbp_OSInfo.h>
 #include <cn_skullmind_mbp_media_MediaPlayer.h>
 #include "cn_skullmind_mbp_media_AudioCoder.h"
+//TODO test
+#include "OpenSLRender.cpp"
 #include <string>
 #include "vector"
 

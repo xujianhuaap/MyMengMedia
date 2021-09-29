@@ -27,4 +27,15 @@ public:
     int dataSize = 0;
     bool hardCopy = true;
 };
+
+class AudioRender{
+public:
+    virtual ~AudioRender(){}
+    virtual void init() = 0;
+    virtual void clearAudioCache() =0 ;
+    virtual void renderAudioFrame(uint8_t * pdata,int data_size) =0;
+    virtual void unInit()=0;
+
+};
+
 #endif //MYMENGMEDIA_AUDIOFRAME_H
