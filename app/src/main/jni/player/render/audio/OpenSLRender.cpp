@@ -41,7 +41,7 @@ void OpenSLRender::init() {
 
 
 void OpenSLRender::renderAudioFrame(uint8_t *pData, int data_size) {
-    Log::d("render audio frame ，data size is  %d",data_size);
+    Log::d("player.render audio frame ，data size is  %d",data_size);
     if(m_audio_player_play){
         if(pData != nullptr && data_size > 0){
             while (getAudioFrameQueueSize()> MAX_QUEUE_BUFFER_SIZE && !m_exit){

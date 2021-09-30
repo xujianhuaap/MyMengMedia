@@ -20,7 +20,8 @@ file( GLOB_RECURSE src_files
         ${CMAKE_SOURCE_DIR}/*.cpp
         ${CMAKE_SOURCE_DIR}/utils/*.cpp
         ${CMAKE_SOURCE_DIR}/recorder/*.cpp
-        ${CMAKE_SOURCE_DIR}/render/audio/*.cpp)
+        ${CMAKE_SOURCE_DIR}/player/*.cpp
+        ${CMAKE_SOURCE_DIR}/player/render/audio/*.cpp)
 add_library(native-lib SHARED ${src_files})
 
 
@@ -74,7 +75,8 @@ target_include_directories(native-lib PUBLIC
         ${CMAKE_SOURCE_DIR}/include
         ${CMAKE_SOURCE_DIR}/utils/include
         ${CMAKE_SOURCE_DIR}/recorder/include
-        ${CMAKE_SOURCE_DIR}/render/audio
-        ${CMAKE_SOURCE_DIR}/render
+        ${CMAKE_SOURCE_DIR}/player/render/audio
+        ${CMAKE_SOURCE_DIR}/player/render
+        ${CMAKE_SOURCE_DIR}/player
         ${CMAKE_SOURCE_DIR}/bean
         ${FFMPEG_LIBS}/${CMAKE_ANDROID_ARCH_ABI}/include)

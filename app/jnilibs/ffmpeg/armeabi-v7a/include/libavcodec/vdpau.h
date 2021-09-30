@@ -87,7 +87,7 @@ typedef struct AVVDPAUContext {
     VdpDecoder decoder;
 
     /**
-     * VDPAU decoder render callback
+     * VDPAU decoder player.render callback
      *
      * Set by the user.
      */

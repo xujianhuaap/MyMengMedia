@@ -4,7 +4,7 @@
 #ifndef LEARNFFMPEG_BASEGLRENDER_H
 #define LEARNFFMPEG_BASEGLRENDER_H
 
-//gl render type
+//gl player.render type
 #define VIDEO_GL_RENDER     0
 #define AUDIO_GL_RENDER     1
 #define VR_3D_GL_RENDER     2
