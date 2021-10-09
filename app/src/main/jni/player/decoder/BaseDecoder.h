@@ -7,11 +7,14 @@
 
 #include <libavutil/avutil.h>
 #include <libavutil/frame.h>
+#include <libavutil//time.h>
 #include <libavcodec/avcodec.h>
 #include <libavformat/avformat.h>
 #include "Decoder.h"
 
 #define MAX_PATH   2048
+#define INVALID_STREAM_INDEX -1
+#define DELAY_THRESHOLD 100 //100ms
 enum DecoderState {
     STATE_UNKNOWN,
     STATE_DECODING,
@@ -76,11 +79,13 @@ protected:
 private:
     int initDecoder();
     void unInitDecoder();
+    void decodingLoop();
     void startDecodingThread();
     void updateTimeStamp();
     long avSync();
     int decodePacketData();
     static void doAvDecoding(BaseDecoder* baseDecoder);
+    static long long GetSysCurrentTime();
 
     AVSyncCallback m_av_sync_call_back;
     void* m_av_context;
@@ -94,7 +99,7 @@ private:
     char m_url[MAX_PATH] = {0};
     long m_current_timestamp = 0;
     long m_start_timestamp = 0;
-    int m_stream_index = -1;
+    int m_stream_index = INVALID_STREAM_INDEX;
     std::mutex m_mutex;
     std::condition_variable m_cond;
     std::thread *m_thread = nullptr;
