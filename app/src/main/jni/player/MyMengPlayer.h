@@ -7,14 +7,16 @@
 
 #include <jni.h>
 #include <AudioFrame.h>
+#include <AudioDecoder.h>
 
+#define JAVA_PLAYER_EVENT_CALLBACK_API_NAME "playerEventCallback"
 class MyMengPlayer {
 public:
     MyMengPlayer() {}
 
     ~MyMengPlayer() {}
 
-    void Init(JNIEnv *env, jobject obj, char *url, int renderType);
+    void Init(JNIEnv *env, jobject obj, char *url);
 
     void UnInit();
 
@@ -40,6 +42,8 @@ private:
     JavaVM *m_jvm = nullptr;
     jobject m_java_obj;
     AudioRender* m_audioRender = nullptr;
+    AudioDecoder * m_audio_decoder = nullptr;
+
 
 
 };

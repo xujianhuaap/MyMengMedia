@@ -9,6 +9,7 @@
 #include <OpenSLRender.cpp>
 #include <MyMengPlayer.h>
 #include "BaseDecoder.cpp"
+#include <AudioDecoder.cpp>
 
 
 #include <string>

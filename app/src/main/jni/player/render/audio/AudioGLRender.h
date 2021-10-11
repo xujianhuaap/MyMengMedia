@@ -36,7 +36,7 @@ private:
     ~AudioGLRender(){
         unInit();
     }
-    void updateMesh();
+//    void updateMesh();
     static AudioGLRender* s_instance;
     static std::mutex s_mutex;
     AudioFrame* m_audio_buffer= nullptr;
