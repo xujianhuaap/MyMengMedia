@@ -5,10 +5,13 @@
 #ifndef MYMENGMEDIA_AUDIODECODER_H
 #define MYMENGMEDIA_AUDIODECODER_H
 
+extern "C" {
 #include <libswresample/swresample.h>
 #include <libavutil/opt.h>
+}
 #include "BaseDecoder.h"
 #include <Log.h>
+#include "AudioFrame.h"
 
 static const uint64_t AUDIO_DST_CHANNEL_LAYOUT = AV_CH_LAYOUT_STEREO;
 // 音频编码采样率

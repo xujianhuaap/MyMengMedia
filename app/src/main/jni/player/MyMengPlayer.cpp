@@ -6,6 +6,9 @@
 #include <OpenSLRender.h>
 #include "MyMengPlayer.h"
 
+
+jfieldID MyMengPlayer::s_contextHandle = 0L;
+
 void MyMengPlayer::Init(JNIEnv *env, jobject obj, char *url) {
     env->GetJavaVM(&m_jvm);
     m_java_obj = env->NewGlobalRef(obj);

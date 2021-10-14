@@ -5,12 +5,17 @@
 #ifndef MYMENGMEDIA_BASEDECODER_H
 #define MYMENGMEDIA_BASEDECODER_H
 
-#include <libavutil/avutil.h>
+extern "C" {
 #include <libavutil/frame.h>
 #include <libavutil//time.h>
 #include <libavcodec/avcodec.h>
 #include <libavformat/avformat.h>
+#include <libavcodec/jni.h>
+}
 #include "Decoder.h"
+#include "thread"
+#include "mutex"
+#include "Log.h"
 
 #define MAX_PATH   2048
 #define INVALID_STREAM_INDEX -1
@@ -51,7 +56,7 @@ public:
 
     virtual float GetCurrentPosition();
 
-    virtual void ClearCache() {}
+    virtual void ClearCache() = 0;
 
     virtual void SetMessageCallback(void *context, MessageCallback callback){
         m_msg_context = context;

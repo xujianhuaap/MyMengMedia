@@ -5,6 +5,8 @@
 #ifndef MYMENGMEDIA_AUDIOFRAME_H
 #define MYMENGMEDIA_AUDIOFRAME_H
 #include "cstdint"
+#include "stdlib.h"
+#include "string.h"
 class AudioFrame{
 public:
     AudioFrame(uint8_t * data, int dataSize, bool hardCopy = true) {

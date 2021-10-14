@@ -11,7 +11,9 @@
 #include <GLES3/gl3.h>
 #include <detail/type_mat.hpp>
 #include <detail/type_mat4x4.hpp>
-
+#include "Log.h"
+#include "thread"
+#include "mutex"
 #define MAX_SAMPLE_LEVEL 5000
 #define RESAMPLE_LEVEL 40
 class AudioGLRender{

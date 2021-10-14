@@ -14,8 +14,8 @@
 #define MAX_QUEUE_BUFFER_SIZE 3
 class OpenSLRender: public AudioRender{
 public:
-    OpenSLRender();
-    ~OpenSLRender(){}
+    OpenSLRender(){};
+    virtual ~OpenSLRender(){}
     virtual void init();
     virtual void clearAudioCache();
     virtual void renderAudioFrame(uint8_t *pData, int data_size);

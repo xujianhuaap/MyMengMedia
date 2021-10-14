@@ -3,10 +3,11 @@
 //
 
 #include "AudioGLRender.h"
-#include "Log.h"
+
+AudioGLRender* AudioGLRender::s_instance = nullptr;
 AudioGLRender * AudioGLRender::GetInstance() {
     if(s_instance == nullptr){
-        std::unique_lock<std::mutex>(s_mutex);
+        std::unique_lock<std::mutex>lock(s_mutex);
         s_instance = new AudioGLRender();
     }
     return s_instance;

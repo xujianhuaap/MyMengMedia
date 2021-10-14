@@ -7,9 +7,11 @@
 
 #include <jni.h>
 #include <AudioFrame.h>
-#include <AudioDecoder.h>
+#include <decoder/AudioDecoder.h>
 
 #define JAVA_PLAYER_EVENT_CALLBACK_API_NAME "playerEventCallback"
+
+
 class MyMengPlayer {
 public:
     MyMengPlayer() {}
@@ -30,6 +32,8 @@ public:
 
     long GetMediaParams(int paramType);
 
+
+    static jfieldID s_contextHandle;
 private:
     JNIEnv *getEnv(bool *isAttach);
 
