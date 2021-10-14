@@ -5,6 +5,7 @@
 #include "AudioGLRender.h"
 
 AudioGLRender* AudioGLRender::s_instance = nullptr;
+std::mutex AudioGLRender::s_mutex;
 AudioGLRender * AudioGLRender::GetInstance() {
     if(s_instance == nullptr){
         std::unique_lock<std::mutex>lock(s_mutex);

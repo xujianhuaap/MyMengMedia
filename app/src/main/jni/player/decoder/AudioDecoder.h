@@ -28,7 +28,7 @@ static const int AUDIO_DST_CHANNEL_COUNTS = 2;
 
 class AudioDecoder: public BaseDecoder{
 public:
-    AudioDecoder(char* url){
+    AudioDecoder(const char* url){
         init(url,AVMEDIA_TYPE_AUDIO);
     }
 

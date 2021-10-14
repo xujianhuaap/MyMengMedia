@@ -18,7 +18,7 @@ public:
 
     ~MyMengPlayer() {}
 
-    void Init(JNIEnv *env, jobject obj, char *url);
+    void Init(JNIEnv *env, jobject obj, const char *url);
 
     void UnInit();
 
@@ -33,7 +33,8 @@ public:
     long GetMediaParams(int paramType);
 
 
-    static jfieldID s_contextHandle;
+    static MyMengPlayer* getInstance(JNIEnv *env, jobject obj);
+    static void StoreNativeHandle(JNIEnv *env, jobject obj,MyMengPlayer* handle);
 private:
     JNIEnv *getEnv(bool *isAttach);
 

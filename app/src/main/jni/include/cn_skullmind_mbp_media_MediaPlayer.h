@@ -9,10 +9,50 @@ extern "C" {
 #endif
 /*
  * Class:     cn_skullmind_mbp_media_MediaPlayer
- * Method:    supportMediaFormats
- * Signature: ()Ljava/util/List;
+ * Method:    nativePlay
+ * Signature: ()V
  */
-JNIEXPORT jobject JNICALL Java_cn_skullmind_mbp_media_MediaPlayer_supportMediaFormats
+JNIEXPORT void JNICALL Java_cn_skullmind_mbp_media_MediaPlayer_nativePlay
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     cn_skullmind_mbp_media_MediaPlayer
+ * Method:    nativePause
+ * Signature: ()V
+ */
+JNIEXPORT void JNICALL Java_cn_skullmind_mbp_media_MediaPlayer_nativePause
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     cn_skullmind_mbp_media_MediaPlayer
+ * Method:    nativeStop
+ * Signature: ()V
+ */
+JNIEXPORT void JNICALL Java_cn_skullmind_mbp_media_MediaPlayer_nativeStop
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     cn_skullmind_mbp_media_MediaPlayer
+ * Method:    nativeSeekToPos
+ * Signature: (I)V
+ */
+JNIEXPORT void JNICALL Java_cn_skullmind_mbp_media_MediaPlayer_nativeSeekToPos
+  (JNIEnv *, jobject, jint);
+
+/*
+ * Class:     cn_skullmind_mbp_media_MediaPlayer
+ * Method:    nativeInit
+ * Signature: (Ljava/lang/String;)V
+ */
+JNIEXPORT void JNICALL Java_cn_skullmind_mbp_media_MediaPlayer_nativeInit
+  (JNIEnv *, jobject, jstring);
+
+/*
+ * Class:     cn_skullmind_mbp_media_MediaPlayer
+ * Method:    nativeUnInit
+ * Signature: ()V
+ */
+JNIEXPORT void JNICALL Java_cn_skullmind_mbp_media_MediaPlayer_nativeUnInit
   (JNIEnv *, jobject);
 
 #ifdef __cplusplus

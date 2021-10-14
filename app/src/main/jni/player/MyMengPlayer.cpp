@@ -6,10 +6,42 @@
 #include <OpenSLRender.h>
 #include "MyMengPlayer.h"
 
+void MyMengPlayer::StoreNativeHandle(JNIEnv *env, jobject obj, MyMengPlayer *handle) {
+    Log::d("MyMengPlayer::StoreNativeHandle");
+    jclass clazz = env->GetObjectClass(obj);
+    if(clazz == nullptr){
+        Log::d("MyMengPlayer::StoreNativeHandle java obj is null");
+        return;
+    }
 
-jfieldID MyMengPlayer::s_contextHandle = 0L;
+    jfieldID f = env->GetFieldID(clazz,"nativePlayerHandle","J");
 
-void MyMengPlayer::Init(JNIEnv *env, jobject obj, char *url) {
+    if(f == nullptr){
+        Log::d("MyMengPlayer::StoreNativeHandle nativePlayerHandle field");
+        return ;
+    }
+
+    env->SetLongField(obj,f, reinterpret_cast<jlong>(handle));
+
+}
+MyMengPlayer * MyMengPlayer::getInstance(JNIEnv *env, jobject obj) {
+    Log::d("MyMengPlayer::getInstance");
+    jclass clazz = env->GetObjectClass(obj);
+    if(clazz == nullptr){
+        Log::d("MyMengPlayer::getInstance java obj is null");
+        return nullptr;
+    }
+
+    jfieldID f = env->GetFieldID(clazz,"nativePlayerHandle","J");
+
+    if(f == nullptr){
+        Log::d("MyMengPlayer::getInstance nativePlayerHandle field");
+        return nullptr;
+    }
+    return reinterpret_cast<MyMengPlayer*>(env->GetLongField(obj,f));
+}
+
+void MyMengPlayer::Init(JNIEnv *env, jobject obj, const char *url) {
     env->GetJavaVM(&m_jvm);
     m_java_obj = env->NewGlobalRef(obj);
     m_audio_decoder = new AudioDecoder(url);
