@@ -1,6 +1,7 @@
 package cn.skullmind.mbp.audio
 
 import android.Manifest
+import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -12,6 +13,7 @@ import androidx.fragment.app.FragmentActivity
 import cn.skullmind.mbp.R
 import cn.skullmind.mbp.databinding.ActivityAudioBinding
 import cn.skullmind.mbp.media.MediaRecorderContext
+import cn.skullmind.mbp.media.MediaRecorderStatusListener
 import cn.skullmind.mbp.media.PRO_TAG
 import cn.skullmind.mbp.utils.getAudioPath
 
@@ -42,6 +44,8 @@ class AudioActivity : FragmentActivity() {
 
     }
 
+    private lateinit var alertDialog: AlertDialog
+
     private fun initData() {
         binding = DataBindingUtil.setContentView(this, R.layout.activity_audio)
         binding.also {
@@ -52,6 +56,28 @@ class AudioActivity : FragmentActivity() {
 
         audioJob = AudioJob(callBack)
         mediaRecorder = MediaRecorderContext()
+        mediaRecorder.statusListener = object : MediaRecorderStatusListener {
+            override fun onAudioStatus(status: Int) {
+                when (status) {
+                    MediaRecorderContext.STATUS_START -> {
+                        if (!this@AudioActivity::alertDialog.isInitialized) {
+                            alertDialog = AlertDialog.Builder(this@AudioActivity)
+                                .setMessage("...recording...")
+                                .setCancelable(false)
+                                .setNegativeButton("停止录音"){ _,_ ->
+
+                                    clkStopRecord()
+                                }
+                                .create()
+                        }
+                        alertDialog.show()
+                    }
+
+                    MediaRecorderContext.STATUS_END ->
+                        alertDialog.dismiss()
+                }
+            }
+        }
     }
 
 
