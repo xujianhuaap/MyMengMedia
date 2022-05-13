@@ -11,6 +11,10 @@ class MediaPlayer {
     fun play(){
         nativePlay()
     }
+
+    fun playerEventCallback(msgType:Int,msgCode:Float){
+
+    }
     private external fun nativePlay()
     private external fun nativePause()
     private external fun nativeStop()

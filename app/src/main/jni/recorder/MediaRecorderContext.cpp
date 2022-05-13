@@ -33,7 +33,6 @@ void MediaRecorderContext::StoreMediaRecorderContext(JNIEnv *jniEnv, jobject ins
 
 
 void MediaRecorderContext::DeleteMediaRecorderContext(JNIEnv *jniEnv, jobject instance) {
-    jclass recorderContextClazz = jniEnv->GetObjectClass(instance);
     if(s_contextHandle == nullptr){
         Log::d("DeleteMediaRecorderContext s_contextHandle is null");
         return;

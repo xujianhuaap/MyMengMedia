@@ -1,0 +1,3 @@
+/home/xu/Documents/codes/codes_c/MyMengMedia/app/src/main/jni/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/home/xu/Documents/codes/codes_c/MyMengMedia/app/src/main/jni/cmake-build-debug/CMakeFiles/native-lib.dir
+/home/xu/Documents/codes/codes_c/MyMengMedia/app/src/main/jni/cmake-build-debug/CMakeFiles/edit_cache.dir

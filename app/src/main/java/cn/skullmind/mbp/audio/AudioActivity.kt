@@ -12,6 +12,7 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.FragmentActivity
 import cn.skullmind.mbp.R
 import cn.skullmind.mbp.databinding.ActivityAudioBinding
+import cn.skullmind.mbp.media.MediaPlayer
 import cn.skullmind.mbp.media.MediaRecorderContext
 import cn.skullmind.mbp.media.MediaRecorderStatusListener
 import cn.skullmind.mbp.media.PRO_TAG
@@ -27,6 +28,7 @@ class AudioActivity : FragmentActivity() {
     private lateinit var binding: ActivityAudioBinding
     lateinit var audioJob: AudioJob
     lateinit var mediaRecorder: MediaRecorderContext
+    lateinit var meidiaPlayer: MediaPlayer
     private val callBack = object : RecordStatusListener {
         override fun onError(msg: String) {
             Log.d(PRO_TAG, msg)
@@ -78,6 +80,8 @@ class AudioActivity : FragmentActivity() {
                 }
             }
         }
+
+        meidiaPlayer = MediaPlayer("/storage/emulated/0/Android/data/cn.skullmind.mbp/files/Music/mymeng_audio_1652434153314.aac")
     }
 
 
@@ -101,7 +105,7 @@ class AudioActivity : FragmentActivity() {
     }
 
     private fun clkPlayRecord() {
-        //TODO
+       meidiaPlayer.play()
     }
 
     private fun hasPermissionsGranted(): Boolean {
