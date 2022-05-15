@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.10.2)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11")
-set(JNI_LIBS /home/xu/Documents/codes/codes_c/MyMengMedia/app/jnilibs)
+set(JNI_LIBS C:/Users/10910/AndroidStudioProjects/MyMengMedia/app/jnilibs)
 set(FFMPEG_LIBS ${JNI_LIBS}/ffmpeg)
 
 
