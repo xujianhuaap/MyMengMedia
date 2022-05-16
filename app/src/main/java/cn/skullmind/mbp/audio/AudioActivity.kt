@@ -114,8 +114,9 @@ class AudioActivity : FragmentActivity() {
         val recordAudioAdapter = RecordAudioAdapter(getRecordAudioFiles(this))
         AlertDialog.Builder(this).setCancelable(false)
             .setAdapter(recordAudioAdapter) { dialog, pos ->
-                mediaPlayer =
-                    MediaPlayer(getRecordAudioFiles(this)[pos].absolutePath)
+                if (this::mediaPlayer.isInitialized) mediaPlayer.stop()
+
+                mediaPlayer = MediaPlayer(getRecordAudioFiles(this)[pos].absolutePath)
                 mediaPlayer.play()
                 dialog.dismiss()
 
@@ -151,7 +152,7 @@ class RecordAudioAdapter(val names: List<File>) : BaseAdapter() {
         return convertView ?: TextView(parent.context).apply {
             text = names[position].name
             val padding = resources.getDimensionPixelOffset(R.dimen.dimen_10dp)
-            setPadding(0,padding,0,padding)
+            setPadding(0, padding, 0, padding)
         }
     }
 }

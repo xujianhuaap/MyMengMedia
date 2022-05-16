@@ -12,6 +12,11 @@ class MediaPlayer {
         nativePlay()
     }
 
+    fun stop(){
+        nativeStop()
+        nativeUnInit()
+    }
+
     fun playerEventCallback(msgType:Int,msgCode:Float){
 
     }
