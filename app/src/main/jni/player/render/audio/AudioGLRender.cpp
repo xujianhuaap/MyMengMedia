@@ -24,9 +24,15 @@ void AudioGLRender::ReleaseInstance() {
 }
 
 void AudioGLRender::UpdateAudioFrame(AudioFrame *audioFrame) {
-    Log::d("update audio frame");
+    Log::d("update audio frame data size %d",audioFrame->dataSize);
     if(audioFrame == nullptr) return;
     std::unique_lock<std::mutex>lock(s_mutex);
+
+    if(m_audio_buffer != nullptr && m_audio_buffer->dataSize != audioFrame->dataSize) {
+        delete m_audio_buffer;
+        m_audio_buffer = nullptr;
+    }
+
     if(m_audio_buffer == nullptr){
         m_audio_buffer = new AudioFrame(audioFrame->data,audioFrame->dataSize);
         m_render_data_size = m_audio_buffer->dataSize/RESAMPLE_LEVEL;

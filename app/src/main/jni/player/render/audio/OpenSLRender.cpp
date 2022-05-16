@@ -41,10 +41,10 @@ void OpenSLRender::init() {
 
 
 void OpenSLRender::renderAudioFrame(uint8_t *pData, int data_size) {
-    Log::d("player.render audio frame ，data size is  %d",data_size);
+    Log::d("player.render audio frame %lu，data size is  %d",pData,data_size);
     if(m_audio_player_play){
         if(pData != nullptr && data_size > 0){
-            while (getAudioFrameQueueSize()> MAX_QUEUE_BUFFER_SIZE && !m_exit){
+            while (getAudioFrameQueueSize()>= MAX_QUEUE_BUFFER_SIZE && !m_exit){
                 std::this_thread::sleep_for(std::chrono::milliseconds(15));
             }
 
@@ -214,7 +214,7 @@ void OpenSLRender::startRender() {
     Log::d("OpenSLRender begin startRender");
     while (getAudioFrameQueueSize() < MAX_QUEUE_BUFFER_SIZE && !m_exit){
         std::unique_lock<std::mutex>lock(m_mutex);
-        m_cond.wait_for(lock,std::chrono::milliseconds(15));
+        m_cond.wait_for(lock,std::chrono::milliseconds(10));
         lock.unlock();
     }
 
@@ -224,11 +224,11 @@ void OpenSLRender::startRender() {
 
 
 void OpenSLRender::handleAudioFrameQueue() {
-    Log::d("OPenSLRender begin handle audio frame queue");
+    Log::d("OPenSLRender begin handle ,audio frame queue size  %lu",m_audio_queue.size());
     if(m_audio_player_play == nullptr) return;
     while (getAudioFrameQueueSize() < MAX_QUEUE_BUFFER_SIZE &&!m_exit){
         std::unique_lock<std::mutex>lock(m_mutex);
-        m_cond.wait_for(lock,std::chrono::milliseconds(15));
+        m_cond.wait_for(lock,std::chrono::milliseconds(10));
     }
     std::unique_lock<std::mutex>lock(m_mutex);
     AudioFrame* audioFrame = m_audio_queue.front();

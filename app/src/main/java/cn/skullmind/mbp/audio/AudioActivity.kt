@@ -81,7 +81,7 @@ class AudioActivity : FragmentActivity() {
             }
         }
 
-        meidiaPlayer = MediaPlayer("/storage/emulated/0/Android/data/cn.skullmind.mbp/files/Music/mymeng_audio_1652434153314.aac")
+        meidiaPlayer = MediaPlayer("/storage/emulated/0/Android/data/cn.skullmind.mbp/files/Music/test1.aac")
     }
 
 

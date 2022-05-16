@@ -173,7 +173,7 @@ void BaseDecoder::startDecodingThread() {
 {
     struct timeval time;
     gettimeofday(&time, NULL);
-    long long curTime = time.tv_usec/1000;
+    long long curTime = ((long long)(time.tv_sec))*1000+time.tv_usec/1000;
     return curTime;
 }
 
@@ -263,11 +263,11 @@ int BaseDecoder::decodePacketData() {
         if(seek_result < 0){
             m_seek_success = false;
         } else{
-            m_seek_success = true;
             if(m_stream_index != INVALID_STREAM_INDEX){
                 avcodec_flush_buffers(m_av_codec_context);
             }
             ClearCache();
+            m_seek_success = true;
         }
     }
 
@@ -290,6 +290,7 @@ int BaseDecoder::decodePacketData() {
                 frame_count++;
             }
 
+            Log::d("packet contain frame count %d",frame_count);
             if(frame_count > 0){
                 result = 0;
                 goto __EXIT;
