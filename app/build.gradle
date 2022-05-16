@@ -6,7 +6,7 @@ plugins {
 android {
     signingConfigs {
         config {
-            storeFile file('/home/xu/Documents/codes/codes_c/MyMengMedia/my_meng_media.jks')
+            storeFile file('../my_meng_media.jks')
             storePassword '123456ap'
             keyAlias 'MyMengMedia'
             keyPassword '123456ap'
