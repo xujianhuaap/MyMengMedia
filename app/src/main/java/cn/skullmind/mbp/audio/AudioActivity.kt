@@ -7,6 +7,10 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
+import android.view.View
+import android.view.ViewGroup
+import android.widget.BaseAdapter
+import android.widget.TextView
 import androidx.core.app.ActivityCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.FragmentActivity
@@ -17,6 +21,8 @@ import cn.skullmind.mbp.media.MediaRecorderContext
 import cn.skullmind.mbp.media.MediaRecorderStatusListener
 import cn.skullmind.mbp.media.PRO_TAG
 import cn.skullmind.mbp.utils.getAudioPath
+import cn.skullmind.mbp.utils.getRecordAudioFiles
+import java.io.File
 
 fun startAudioActivity(context: Context) {
     context.startActivity(Intent(context, AudioActivity::class.java))
@@ -28,7 +34,7 @@ class AudioActivity : FragmentActivity() {
     private lateinit var binding: ActivityAudioBinding
     lateinit var audioJob: AudioJob
     lateinit var mediaRecorder: MediaRecorderContext
-    lateinit var meidiaPlayer: MediaPlayer
+    lateinit var mediaPlayer: MediaPlayer
     private val callBack = object : RecordStatusListener {
         override fun onError(msg: String) {
             Log.d(PRO_TAG, msg)
@@ -66,7 +72,7 @@ class AudioActivity : FragmentActivity() {
                             alertDialog = AlertDialog.Builder(this@AudioActivity)
                                 .setMessage("...recording...")
                                 .setCancelable(false)
-                                .setNegativeButton("停止录音"){ _,_ ->
+                                .setNegativeButton("停止录音") { _, _ ->
 
                                     clkStopRecord()
                                 }
@@ -81,7 +87,7 @@ class AudioActivity : FragmentActivity() {
             }
         }
 
-        meidiaPlayer = MediaPlayer("/storage/emulated/0/Android/data/cn.skullmind.mbp/files/Music/test1.aac")
+
     }
 
 
@@ -105,7 +111,15 @@ class AudioActivity : FragmentActivity() {
     }
 
     private fun clkPlayRecord() {
-       meidiaPlayer.play()
+        val recordAudioAdapter = RecordAudioAdapter(getRecordAudioFiles(this))
+        AlertDialog.Builder(this).setCancelable(false)
+            .setAdapter(recordAudioAdapter) { dialog, pos ->
+                mediaPlayer =
+                    MediaPlayer(getRecordAudioFiles(this)[pos].absolutePath)
+                mediaPlayer.play()
+                dialog.dismiss()
+
+            }.create().show()
     }
 
     private fun hasPermissionsGranted(): Boolean {
@@ -126,5 +140,18 @@ class AudioActivity : FragmentActivity() {
             Manifest.permission.RECORD_AUDIO
         )
         private const val PERMISSION_REQUEST_CODE = 0x12
+    }
+}
+
+class RecordAudioAdapter(val names: List<File>) : BaseAdapter() {
+    override fun getCount(): Int = names.size
+    override fun getItem(position: Int): Any = names[position]
+    override fun getItemId(position: Int) = 0L
+    override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
+        return convertView ?: TextView(parent.context).apply {
+            text = names[position].name
+            val padding = resources.getDimensionPixelOffset(R.dimen.dimen_10dp)
+            setPadding(0,padding,0,padding)
+        }
     }
 }

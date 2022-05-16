@@ -17,3 +17,11 @@ fun getAudioPath(context: Context, ext: String): File? {
 
     }
 }
+
+fun getRecordAudioFiles(context: Context):List<File> {
+    val list = mutableListOf<File>()
+    context.getExternalFilesDir(DIRECTORY_MUSIC)?.listFiles()?.forEach {
+        if(it.isFile && it.canRead()) list.add(it)
+    }
+    return list
+}
