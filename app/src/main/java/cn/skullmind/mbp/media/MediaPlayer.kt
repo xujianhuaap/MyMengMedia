@@ -20,7 +20,7 @@ class MediaPlayer {
     }
 
     fun playerEventCallback(msgType:Int,msgCode:Float){
-        if(msgType == 4){
+        if(msgType == MsgType.MSG_DECODING_TIME.value){
             Log.d("-->","$msgCode")
         }
     }
@@ -37,4 +37,13 @@ class MediaPlayer {
             System.loadLibrary("native-lib")
         }
     }
+}
+
+enum class MsgType(val value:Int){
+    MSG_DECODER_INIT_ERR(0),
+    MSG_DECODER_READY(1),
+    MSG_DECODER_DONE(2),
+    MSG_REQUEST_RENDER(3),
+    MSG_DECODING_TIME(4)
+
 }
