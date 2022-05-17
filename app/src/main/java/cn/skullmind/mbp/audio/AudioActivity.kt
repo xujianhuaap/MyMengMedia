@@ -16,10 +16,7 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.FragmentActivity
 import cn.skullmind.mbp.R
 import cn.skullmind.mbp.databinding.ActivityAudioBinding
-import cn.skullmind.mbp.media.MediaPlayer
-import cn.skullmind.mbp.media.MediaRecorderContext
-import cn.skullmind.mbp.media.MediaRecorderStatusListener
-import cn.skullmind.mbp.media.PRO_TAG
+import cn.skullmind.mbp.media.*
 import cn.skullmind.mbp.utils.getAudioPath
 import cn.skullmind.mbp.utils.getRecordAudioFiles
 import java.io.File
@@ -43,6 +40,12 @@ class AudioActivity : FragmentActivity() {
 
         override fun onAudioData(data: ByteArray, len: Int) {
             mediaRecorder.onAudioData(data, len)
+        }
+    }
+
+    private val playStatusListener = object : MediaPlayerStatus {
+        override fun currentPos(progress: Float) {
+            binding.playProgress.progress = (progress * 100).toInt()
         }
     }
 
@@ -116,7 +119,10 @@ class AudioActivity : FragmentActivity() {
             .setAdapter(recordAudioAdapter) { dialog, pos ->
                 if (this::mediaPlayer.isInitialized) mediaPlayer.stop()
 
-                mediaPlayer = MediaPlayer(getRecordAudioFiles(this)[pos].absolutePath)
+                mediaPlayer = MediaPlayer(
+                    getRecordAudioFiles(this)[pos].absolutePath,
+                    status = playStatusListener
+                )
                 mediaPlayer.play()
                 dialog.dismiss()
 

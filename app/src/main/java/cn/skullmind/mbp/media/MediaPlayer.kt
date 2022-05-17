@@ -1,12 +1,14 @@
 package cn.skullmind.mbp.media
 
 import android.util.Log
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.launch
 
-class MediaPlayer {
+class MediaPlayer(val status: MediaPlayerStatus) {
 
    private var nativePlayerHandle = 0L
 
-    constructor(url: String){
+    constructor(url: String,status: MediaPlayerStatus) : this(status) {
         nativeInit(url)
     }
 
@@ -20,9 +22,14 @@ class MediaPlayer {
     }
 
     fun playerEventCallback(msgType:Int,msgCode:Float){
-        if(msgType == MsgType.MSG_DECODING_TIME.value){
-            Log.d("-->","$msgCode")
+        MainScope().launch {
+            if(msgType == MsgType.MSG_DECODING_TIME.value){
+                Log.d("-->","$msgCode")
+                status.currentPos(msgCode)
+            }
+
         }
+
     }
     private external fun nativePlay()
     private external fun nativePause()
@@ -45,5 +52,8 @@ enum class MsgType(val value:Int){
     MSG_DECODER_DONE(2),
     MSG_REQUEST_RENDER(3),
     MSG_DECODING_TIME(4)
+}
 
+interface MediaPlayerStatus{
+    fun currentPos(progress:Float)
 }
