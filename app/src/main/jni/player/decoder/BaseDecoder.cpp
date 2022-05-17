@@ -216,17 +216,23 @@ void BaseDecoder::decodingLoop() {
 void BaseDecoder::updateTimeStamp() {
     Log::d("BaseDecoder updateTimeStamp");
     std::unique_lock<std::mutex>lock(m_mutex);
+    int64_t currentTimeBaseTimeBaseUnit = 0;
+    //pkt_dts是以time_base为单位,time_base的单位为秒，因此pkt_dts*time_base可以得到
+    //该帧数据的应该播放的时刻（单位为秒）
+
+    //pts表示展示给用户的时刻点，pts要晚于dts
+    //dts表示解压的时刻点
     if(m_av_frame->pkt_dts != AV_NOPTS_VALUE){
-        m_current_timestamp = m_av_frame->pkt_dts;
+        currentTimeBaseTimeBaseUnit = m_av_frame->pkt_dts;
     } else if(m_av_frame->pts != AV_NOPTS_VALUE){
-        m_current_timestamp = m_av_frame->pts;
-    } else{
-        m_current_timestamp = 0;
+        currentTimeBaseTimeBaseUnit = m_av_frame->pts;
     }
 
-    m_current_timestamp = (int64_t)((m_current_timestamp *
-            av_q2d(m_format_context->streams[m_stream_index]->time_base))*1000);
-
+    //time_base单位为秒，例如采样率为640*44100Hz,那么time_base的值为1/28224000
+    AVRational avRational = m_format_context->streams[m_stream_index]->time_base;
+    Log::d("time base 分子为%d ,分母为%d",avRational.num,avRational.den);
+    double timeBaseValue = av_q2d(avRational);
+    m_current_timestamp = (int64_t)((currentTimeBaseTimeBaseUnit * timeBaseValue) * 1000);
     if(m_seek_postion > 0 && m_seek_success){
         m_start_timestamp = GetSysCurrentTime() - m_current_timestamp;
         m_seek_postion = 0;
@@ -241,6 +247,10 @@ long BaseDecoder::avSync() {
     Log::d("BaseDecoder av sync");
     long currentTime = GetSysCurrentTime();
     long elapsedTime = currentTime - m_start_timestamp;
+
+    if(m_msg_context && m_message_call_back && m_media_type == AVMEDIA_TYPE_AUDIO)
+        m_message_call_back(m_msg_context, MSG_DECODING_TIME, m_current_timestamp *1.0f / m_duration );
+
     if(m_current_timestamp > elapsedTime ){
         auto sleepTime = static_cast<unsigned int>(m_current_timestamp - elapsedTime);
         sleepTime = sleepTime > DELAY_THRESHOLD?DELAY_THRESHOLD:sleepTime;

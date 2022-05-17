@@ -34,6 +34,15 @@ void Log::v(const char *format,...) {
     printF(ANDROID_LOG_VERBOSE,format,paraList);
 }
 
+/***
+ *  %d int
+ *  %ld long
+ *  %f float
+ *  %lf double
+ * @param priority
+ * @param format
+ * @param paraList
+ */
 void Log::printF(android_LogPriority priority,const char *format,va_list paraList){
     __android_log_vprint(priority,LOG_TAG,format,paraList);
 }
