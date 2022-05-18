@@ -36,14 +36,12 @@ int AudioRecorder::onFrameEncode(AudioFrame *frame) {
 int AudioRecorder::stopRecord() {
     Log::d("stop record");
     m_exit = 1;
+    int result = 0;
     if(m_encodeThread != nullptr){
         m_encodeThread->join();
         delete m_encodeThread;
         m_encodeThread = nullptr;
-        int result = encodeFrame(nullptr);
-        if(result >= 0){
-            av_write_trailer(m_formatContext);
-        }
+        result = av_write_trailer(m_formatContext);
     }
 
     while (!m_queue.isEmpty()){
@@ -81,7 +79,7 @@ int AudioRecorder::stopRecord() {
 
 
 
-    return 0;
+    return result;
 }
 int AudioRecorder::startRecord() {
     int result = -1;

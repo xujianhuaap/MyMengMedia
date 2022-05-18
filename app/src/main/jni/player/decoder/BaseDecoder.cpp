@@ -242,7 +242,7 @@ void BaseDecoder::updateTimeStamp() {
 
 
 long BaseDecoder::avSync() {
-    Log::d("BaseDecoder av sync");
+    Log::d("BaseDecoder av sync packet pts %ld,packet size %d",m_packet_data->pts,m_packet_data->size);
     long currentTime = GetSysCurrentTime();
     long elapsedTime = currentTime - m_start_timestamp;
 

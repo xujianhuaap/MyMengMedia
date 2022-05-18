@@ -11,6 +11,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
 import android.widget.TextView
+import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.FragmentActivity
@@ -123,21 +124,27 @@ class AudioActivity : FragmentActivity() {
     }
 
     private fun clkPlayRecord() {
-        val recordAudioAdapter = RecordAudioAdapter(getRecordAudioFiles(this))
-        AlertDialog.Builder(this).setCancelable(false)
-            .setAdapter(recordAudioAdapter) { dialog, pos ->
-                if (this::mediaPlayer.isInitialized) mediaPlayer.stop()
+        val recordAudioFiles = getRecordAudioFiles(this)
+        if(recordAudioFiles.isNotEmpty()){
+            val recordAudioAdapter = RecordAudioAdapter(recordAudioFiles)
+            AlertDialog.Builder(this).setCancelable(false)
+                .setAdapter(recordAudioAdapter) { dialog, pos ->
+                    if (this::mediaPlayer.isInitialized) mediaPlayer.stop()
 
-                val file = getRecordAudioFiles(this)[pos]
-                currentRecordFile = file
-                mediaPlayer = MediaPlayer(
-                    file.absolutePath,
-                    status = playStatusListener
-                )
-                mediaPlayer.play()
-                dialog.dismiss()
+                    val file = getRecordAudioFiles(this)[pos]
+                    currentRecordFile = file
+                    mediaPlayer = MediaPlayer(
+                        file.absolutePath,
+                        status = playStatusListener
+                    )
+                    mediaPlayer.play()
+                    dialog.dismiss()
 
-            }.create().show()
+                }.create().show()
+        }else {
+            Toast.makeText(this,"暂无播放列表",Toast.LENGTH_LONG).show()
+        }
+
     }
 
     private fun hasPermissionsGranted(): Boolean {

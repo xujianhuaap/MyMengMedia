@@ -27,7 +27,7 @@ void AudioDecoder::onDecodeReady() {
 
 
 void AudioDecoder::onFrameAvailable(AVFrame *avFrame) {
-    Log::d("AudioDecoder onFrameAvailable");
+    Log::d("AudioDecoder onFrameAvailable pts %ld",avFrame->pkt_pts);
     if(m_render){
         int result = swr_convert(m_swrContext,&m_audio_out_buffer,m_dst_frame_data_size/2,
                 (const uint8_t**)avFrame->data,avFrame->nb_samples);
