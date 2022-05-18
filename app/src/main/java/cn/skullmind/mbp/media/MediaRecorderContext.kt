@@ -17,19 +17,19 @@ open class MediaRecorderContext {
     external fun stopRecord()
     var nativeContextHandle = 0L
 
-    fun onAudioStatus(status:Int){
+    fun onAudioStatus(status:Int,msg:String){
         MainScope().launch {
-            Log.d("--->","end $status")
+            Log.d("--->","$msg")
             statusListener?.onAudioStatus(status)
         }
     }
     companion object{
         @JvmStatic
-        val STATUS_START = 1
+        val STATUS_START = 0
         @JvmStatic
-        val STATUS_RECORDING = 2
+        val STATUS_Err = 2
         @JvmStatic
-        val STATUS_END = 3
+        val STATUS_END = 1
         init {
             System.loadLibrary("native-lib")
         }

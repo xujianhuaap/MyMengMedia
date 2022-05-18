@@ -32,6 +32,7 @@ class AudioActivity : FragmentActivity() {
     lateinit var audioJob: AudioJob
     lateinit var mediaRecorder: MediaRecorderContext
     lateinit var mediaPlayer: MediaPlayer
+    private var currentRecordFile:File? = null
     private val callBack = object : RecordStatusListener {
         override fun onError(msg: String) {
             Log.d(PRO_TAG, msg)
@@ -86,6 +87,14 @@ class AudioActivity : FragmentActivity() {
 
                     MediaRecorderContext.STATUS_END ->
                         alertDialog.dismiss()
+                    MediaRecorderContext.STATUS_Err ->{
+                        currentRecordFile?.run{
+                            if(this.exists()) delete()
+                        }
+                        alertDialog.dismiss()
+                    }
+
+
                 }
             }
         }
@@ -119,8 +128,10 @@ class AudioActivity : FragmentActivity() {
             .setAdapter(recordAudioAdapter) { dialog, pos ->
                 if (this::mediaPlayer.isInitialized) mediaPlayer.stop()
 
+                val file = getRecordAudioFiles(this)[pos]
+                currentRecordFile = file
                 mediaPlayer = MediaPlayer(
-                    getRecordAudioFiles(this)[pos].absolutePath,
+                    file.absolutePath,
                     status = playStatusListener
                 )
                 mediaPlayer.play()

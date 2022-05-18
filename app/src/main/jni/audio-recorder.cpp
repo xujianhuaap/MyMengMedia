@@ -60,15 +60,6 @@ JNIEXPORT jint JNICALL Java_cn_skullmind_mbp_media_MediaRecorderContext_startRec
     MediaRecorderContext* mediaRecorderContext = MediaRecorderContext::GetContext(env,thisObj);
     env->ReleaseStringUTFChars(outputUrl,out);
     if(mediaRecorderContext){
-        jclass  clazz = env->GetObjectClass(thisObj);
-        jmethodID  methodID = env->GetMethodID(clazz,"onAudioStatus","(I)V");
-
-        jfieldID  fieldId = env->GetStaticFieldID(clazz,"STATUS_START","I");
-        jint stausValue = env->GetStaticIntField(clazz,fieldId);
-
-        env->CallVoidMethod(thisObj,methodID,stausValue);
-
-        env->DeleteLocalRef(clazz);
         return mediaRecorderContext->startRecordAudio(out);
     }
     return 0;
@@ -101,15 +92,6 @@ JNIEXPORT void JNICALL Java_cn_skullmind_mbp_media_MediaRecorderContext_stopReco
     if(mediaRecorderContext){
         mediaRecorderContext->stopRecord();
     }
-    jclass  clazz = env->GetObjectClass(thisObj);
-    jmethodID  methodID = env->GetMethodID(clazz,"onAudioStatus","(I)V");
-
-    jfieldID  fieldId = env->GetStaticFieldID(clazz,"STATUS_END","I");
-    jint stausValue = env->GetStaticIntField(clazz,fieldId);
-
-    env->CallVoidMethod(thisObj,methodID,stausValue);
-
-    env->DeleteLocalRef(clazz);
 }
 
 #ifdef __cplusplus
