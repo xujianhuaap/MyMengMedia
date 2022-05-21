@@ -62,6 +62,9 @@ int BaseDecoder::initDecoder() {
     int result = 0;
 
     do {
+
+        av_log_set_level(AV_LOG_INFO);
+
         m_format_context = avformat_alloc_context();
         result = avformat_open_input(&m_format_context, m_url, NULL, NULL);
         if (result < 0) {
@@ -87,6 +90,11 @@ int BaseDecoder::initDecoder() {
             Log::d("BaseDecoder init decoder has no special media type stream");
             break;
         }
+
+        av_dump_format(m_format_context, 0, m_url, 0);
+        AVDictionaryEntry* tag = nullptr;
+        while ((tag = av_dict_get(m_format_context->metadata, "", tag, AV_DICT_IGNORE_SUFFIX)))
+            Log::d("BaseDecoder init decoder metadata【 %s】 =》%s",tag->key,tag->value);
 
         AVCodecParameters *avCodecParameters = m_format_context->streams[m_stream_index]
                 ->codecpar;

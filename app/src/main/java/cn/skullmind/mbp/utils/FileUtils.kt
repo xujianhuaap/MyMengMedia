@@ -1,6 +1,7 @@
 package cn.skullmind.mbp.utils
 
 import android.content.Context
+import android.os.Environment
 import android.os.Environment.DIRECTORY_MUSIC
 import android.os.Environment.getExternalStoragePublicDirectory
 import java.io.File
@@ -27,6 +28,6 @@ fun getRecordAudioFiles(context: Context):List<File> {
     return list
 }
 
-private fun getParentDir(context: Context):File {
-    return getExternalStoragePublicDirectory(DIRECTORY_MUSIC)
+private fun getParentDir(context: Context):File?{
+    return context.getExternalFilesDir(Environment.DIRECTORY_MUSIC)
 }

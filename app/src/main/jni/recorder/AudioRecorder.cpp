@@ -42,6 +42,9 @@ int AudioRecorder::stopRecord() {
         delete m_encodeThread;
         m_encodeThread = nullptr;
         result = av_write_trailer(m_formatContext);
+        if(result >= 0){
+            Log::d("success write stream trailer");
+        }
     }
 
     while (!m_queue.isEmpty()){
@@ -128,7 +131,7 @@ int AudioRecorder::startRecord() {
     }
 
 
-    av_dump_format(m_formatContext,0,m_outputUrl,1);
+
 
 
     m_av_frame = av_frame_alloc();
@@ -147,10 +150,17 @@ int AudioRecorder::startRecord() {
 
 
     AVDictionary * avDictionary = nullptr;
-    if(avformat_write_header(m_formatContext,&avDictionary) == AVSTREAM_INIT_IN_INIT_OUTPUT){
-        Log::d(" success fill dic ");
+    result = av_dict_set(&avDictionary,"manual","skullmind",0);
+    if(result >= 0) {
+        Log::d(" success av_dict_set ");
     }
-    av_dict_free(&avDictionary);
+
+
+    if(avformat_write_header(m_formatContext,&avDictionary) == AVSTREAM_INIT_IN_WRITE_HEADER){
+        Log::d(" success write stream header ");
+    }
+    av_dump_format(m_formatContext,0,m_outputUrl,1);
+//    av_dict_free(&avDictionary);
 
 
 
@@ -173,6 +183,10 @@ int AudioRecorder::startRecord() {
 
     if(result >= 0){
         m_encodeThread = new std::thread(StartACCEncoderThread,this);
+    }
+
+    if(avformat_init_output(m_formatContext,&avDictionary) == AVSTREAM_INIT_IN_INIT_OUTPUT){
+        Log::d(" success init  output");
     }
     return 0;
 }
