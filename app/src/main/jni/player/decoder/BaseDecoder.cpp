@@ -118,6 +118,7 @@ int BaseDecoder::initDecoder() {
 
 
         m_duration = m_format_context->duration * av_q2d(AV_TIME_BASE_Q) * 1000;
+        Log::d("BaseDecoder init decoder duration %ld" , m_duration);
         m_packet_data = av_packet_alloc();
         m_av_frame = av_frame_alloc();
     } while (false);

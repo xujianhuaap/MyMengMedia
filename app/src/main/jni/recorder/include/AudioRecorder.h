@@ -46,6 +46,7 @@ private:
     AVFormatContext *m_formatContext= nullptr;
     std::thread *m_encodeThread=nullptr;
     SwrContext *m_swsContext=nullptr;
+    long m_total_frame_count = 0;
     volatile int m_exit =0;
 
 };

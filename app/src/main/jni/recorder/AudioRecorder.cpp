@@ -126,8 +126,10 @@ int AudioRecorder::startRecord() {
         Log::d("can not open codec");
         return -1;
     }
-    int streamIndex = m_av_stream->index;
+
+
     av_dump_format(m_formatContext,0,m_outputUrl,1);
+
 
     m_av_frame = av_frame_alloc();
     m_av_frame->nb_samples =m_AvCodecContext->frame_size;
@@ -142,7 +144,17 @@ int AudioRecorder::startRecord() {
     avcodec_fill_audio_frame(m_av_frame,m_AvCodecContext->channels,m_AvCodecContext->sample_fmt,
             m_pFrameBuffer,m_frame_buffer_size,1);
 
-    avformat_write_header(m_formatContext, nullptr);
+
+
+    AVDictionary * avDictionary = nullptr;
+    if(avformat_write_header(m_formatContext,&avDictionary) == AVSTREAM_INIT_IN_INIT_OUTPUT){
+        Log::d(" success fill dic ");
+    }
+    av_dict_free(&avDictionary);
+
+
+
+
     result = av_new_packet(&m_avPacket,m_frame_buffer_size);
     if(result < 0){
         Log::d("fail to new packet");
@@ -167,6 +179,7 @@ int AudioRecorder::startRecord() {
 
 
 void AudioRecorder::StartACCEncoderThread(AudioRecorder *recorder) {
+    recorder->m_total_frame_count = 0;
     while (!recorder->m_exit || !recorder->m_queue.isEmpty()){
         if(recorder->m_queue.isEmpty()){
             usleep(10*1000);
@@ -186,6 +199,9 @@ void AudioRecorder::StartACCEncoderThread(AudioRecorder *recorder) {
         }
         delete audioFrame;
     }
+
+    Log::d("end aac encode thread");
+
 }
 
 int AudioRecorder::encodeFrame(AVFrame *avFrame) {
@@ -204,7 +220,7 @@ int AudioRecorder::encodeFrame(AVFrame *avFrame) {
             return -1;
         }
 
-
+        m_total_frame_count ++;
         Log::d("SingleAudioRecorder::EncodeFrame frame pts=%ld, size=%d", m_avPacket.pts, m_avPacket.size);
         m_avPacket.stream_index = this->m_av_stream->index;
         av_interleaved_write_frame(m_formatContext,&m_avPacket);

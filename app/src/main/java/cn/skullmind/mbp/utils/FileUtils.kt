@@ -2,10 +2,11 @@ package cn.skullmind.mbp.utils
 
 import android.content.Context
 import android.os.Environment.DIRECTORY_MUSIC
+import android.os.Environment.getExternalStoragePublicDirectory
 import java.io.File
 
 fun getAudioPath(context: Context, ext: String): File? {
-    return context.getExternalFilesDir(DIRECTORY_MUSIC)?.run {
+    return getParentDir(context)?.run {
         val fileName = "mymeng_audio_"
             .plus(System.currentTimeMillis())
             .plus(".")
@@ -20,8 +21,12 @@ fun getAudioPath(context: Context, ext: String): File? {
 
 fun getRecordAudioFiles(context: Context):List<File> {
     val list = mutableListOf<File>()
-    context.getExternalFilesDir(DIRECTORY_MUSIC)?.listFiles()?.forEach {
+    getParentDir(context)?.listFiles()?.forEach {
         if(it.isFile && it.canRead()) list.add(it)
     }
     return list
+}
+
+private fun getParentDir(context: Context):File {
+    return getExternalStoragePublicDirectory(DIRECTORY_MUSIC)
 }
