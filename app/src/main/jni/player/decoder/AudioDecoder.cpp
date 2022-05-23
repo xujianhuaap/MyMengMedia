@@ -15,9 +15,7 @@ void AudioDecoder::onDecodeReady() {
         av_opt_set_int(m_swrContext,"in_sample_fmt",codecCxt->sample_fmt,0);
         av_opt_set_int(m_swrContext,"out_sample_fmt",AUDIO_DST_SAMPLE_FMT,0);
         swr_init(m_swrContext);
-        m_nb_sample_per_channel = (int)av_rescale_rnd(ACC_NB_SAMPLES,AUDIO_DST_SAMPLE_RATE,codecCxt->sample_rate,AV_ROUND_UP);
-        m_dst_frame_data_size = av_samples_get_buffer_size(NULL,AUDIO_DST_CHANNEL_COUNTS,m_nb_sample_per_channel,AUDIO_DST_SAMPLE_FMT,1);
-        m_audio_out_buffer = (uint8_t *)malloc(m_dst_frame_data_size);
+
         m_render->init();
     }else {
         Log::d("AudioDecoder audio render is null");
@@ -29,6 +27,9 @@ void AudioDecoder::onDecodeReady() {
 void AudioDecoder::onFrameAvailable(AVFrame *avFrame) {
     Log::d("AudioDecoder onFrameAvailable pts %ld",avFrame->pkt_pts);
     if(m_render){
+        m_nb_sample_per_channel = (int)av_rescale_rnd(avFrame->nb_samples,AUDIO_DST_SAMPLE_RATE,avFrame->sample_rate,AV_ROUND_UP);
+        m_dst_frame_data_size = av_samples_get_buffer_size(avFrame->linesize,AUDIO_DST_CHANNEL_COUNTS,m_nb_sample_per_channel,AUDIO_DST_SAMPLE_FMT,1);
+        m_audio_out_buffer = (uint8_t *)malloc(m_dst_frame_data_size);
         int result = swr_convert(m_swrContext,&m_audio_out_buffer,m_dst_frame_data_size/2,
                 (const uint8_t**)avFrame->data,avFrame->nb_samples);
 
