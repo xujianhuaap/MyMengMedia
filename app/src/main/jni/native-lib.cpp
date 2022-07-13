@@ -2,7 +2,7 @@
 // Created by xu on 21-6-25.
 //
 
-#include <cn_skullmind_mbp_OSInfo.h>
+#include <cn_skullmind_mbp_ffmpeg_info_OSInfo.h>
 #include <cn_skullmind_mbp_media_MediaPlayer.h>
 #include "cn_skullmind_mbp_media_AudioCoder.h"
 #include "cn_skullmind_mbp_media_MediaPlayer.h"
@@ -26,7 +26,7 @@ extern "C" {
 extern "C" {
 const std::string TAG = "ffmpeg";
 JNIEXPORT jstring JNICALL
-Java_cn_skullmind_mbp_OSInfo_getOSString(
+Java_cn_skullmind_mbp_ffmpeg_1info_OSInfo_getOSString(
         JNIEnv *env,
         jobject /* this */) {
     std::string hello = "Hello from C++";

@@ -1,4 +1,4 @@
-package cn.skullmind.mbp
+package cn.skullmind.mbp.ffmpeg_info
 
 class OSInfo {
     external fun getOSString():String
