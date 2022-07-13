@@ -6,6 +6,7 @@
 #include <cn_skullmind_mbp_media_MediaPlayer.h>
 #include "cn_skullmind_mbp_media_AudioCoder.h"
 #include "cn_skullmind_mbp_media_MediaPlayer.h"
+#include "ffmpeg_info.h"
 
 
 
@@ -29,7 +30,7 @@ JNIEXPORT jstring JNICALL
 Java_cn_skullmind_mbp_ffmpeg_1info_OSInfo_getOSString(
         JNIEnv *env,
         jobject /* this */) {
-    std::string hello = "Hello from C++";
+    std::string hello = getFFMpegInfo();
     return env->NewStringUTF(hello.c_str());
 }
 

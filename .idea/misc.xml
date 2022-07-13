@@ -5,6 +5,7 @@
       <map>
         <entry key="app/src/main/res/drawable/shape_rectangle_corner_red_outline.xml" value="0.2255" />
         <entry key="app/src/main/res/layout/activity_audio.xml" value="0.264" />
+        <entry key="app/src/main/res/layout/activity_ffmpeg_info.xml" value="0.3020833333333333" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.3020833333333333" />
         <entry key="app/src/main/res/layout/activity_trans_code.xml" value="0.3020833333333333" />
         <entry key="app/src/main/res/layout/content_main.xml" value="0.3020833333333333" />

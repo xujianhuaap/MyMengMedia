@@ -24,7 +24,7 @@ file( GLOB_RECURSE src_files
         ${CMAKE_SOURCE_DIR}/player/*.cpp
         ${CMAKE_SOURCE_DIR}/player/decoder/*.cpp
         ${CMAKE_SOURCE_DIR}/player/render/audio/*.cpp
-        ${CMAKE_SOURCE_DIR}/ffmpeg/*.c)
+        ${CMAKE_SOURCE_DIR}/ffmpeg/*.c*)
 add_library(native-lib SHARED ${src_files})
 
 
