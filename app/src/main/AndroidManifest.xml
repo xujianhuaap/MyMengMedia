@@ -23,6 +23,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".audio.AudioActivity"></activity>
+        <activity android:name=".transcode.TransCodeActivity"/>
     </application>
 
 

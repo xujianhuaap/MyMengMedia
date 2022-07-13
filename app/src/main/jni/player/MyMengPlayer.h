@@ -7,7 +7,7 @@
 
 #include <jni.h>
 #include <AudioFrame.h>
-#include <decoder/AudioDecoder.h>
+#include "decoder/AudioDecoder.h"
 
 #define JAVA_PLAYER_EVENT_CALLBACK_API_NAME "playerEventCallback"
 
