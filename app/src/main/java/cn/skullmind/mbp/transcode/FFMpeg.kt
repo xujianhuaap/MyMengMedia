@@ -5,7 +5,9 @@ class FFMpeg {
         val arr = cmd.split(" ").toTypedArray()
         nativeCmd(args = arr)
     }
-    external fun nativeCmd(args:Array<String>):Int
+
+
+    private external fun nativeCmd(args:Array<String>):Int
 
     companion object{
         init {

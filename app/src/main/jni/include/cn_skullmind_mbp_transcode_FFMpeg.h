@@ -13,7 +13,7 @@ extern "C" {
  * Signature: ([Ljava/lang/String;)I
  */
 JNIEXPORT jint JNICALL Java_cn_skullmind_mbp_transcode_FFMpeg_nativeCmd
-  (JNIEnv *, jobject, jobjectArray);
+  (JNIEnv *, __attribute__((unused)) __attribute__((unused)) jobject, jobjectArray);
 
 #ifdef __cplusplus
 }
