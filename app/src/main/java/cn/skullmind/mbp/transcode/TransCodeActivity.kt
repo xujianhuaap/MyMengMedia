@@ -1,30 +1,47 @@
 package cn.skullmind.mbp.transcode
 
 import android.Manifest
+import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import cn.skullmind.mbp.R
+import cn.skullmind.mbp.audio.RecordAudioAdapter
+import cn.skullmind.mbp.utils.getRecordAudioFiles
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import java.io.File
 
 fun startTransCodeActivity(context: Context) {
     context.startActivity(Intent(context, TransCodeActivity::class.java))
 }
-class TransCodeActivity:AppCompatActivity() {
 
+class TransCodeActivity : AppCompatActivity() {
+    private var selectFile: File? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_trans_code)
+        selectTranscodeFile()
 
     }
 
-    override fun onResume() {
-        super.onResume()
-        checkPermissions()
+    private fun selectTranscodeFile() {
+        val recordAudioFiles = getRecordAudioFiles(this)
+        if (recordAudioFiles.isNotEmpty()) {
+            val recordAudioAdapter = RecordAudioAdapter(recordAudioFiles)
+            AlertDialog.Builder(this).setCancelable(false)
+                .setAdapter(recordAudioAdapter) { dialog, pos ->
+                    selectFile = recordAudioFiles[pos]
+                    checkPermissions()
+                    dialog.dismiss()
 
+                }.create().show()
+        } else {
+            Toast.makeText(this, "暂无播放列表", Toast.LENGTH_LONG).show()
+        }
     }
 
     override fun onRequestPermissionsResult(
@@ -33,8 +50,8 @@ class TransCodeActivity:AppCompatActivity() {
         grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if(requestCode == CODE_PERMISSION_STORAGE){
-            if(grantResults.all { it ==   PackageManager.PERMISSION_GRANTED}){
+        if (requestCode == CODE_PERMISSION_STORAGE) {
+            if (grantResults.all { it == PackageManager.PERMISSION_GRANTED }) {
                 startTranscode()
             }
         }
@@ -43,23 +60,42 @@ class TransCodeActivity:AppCompatActivity() {
     private fun checkPermissions() {
         if (permissions.all { checkSelfPermission(it) == PackageManager.PERMISSION_GRANTED }) {
             startTranscode()
-        }else {
+        } else {
             requestPermissions(permissions, CODE_PERMISSION_STORAGE)
         }
     }
 
     private fun startTranscode() {
         GlobalScope.launch {
-            FFMpeg().transcode("ffmpeg -y -i /storage/emulated/0/mymeng_audio_1657677635382.aac -filter_complex acrossover=split=1500[LOW][HIGH] -map [LOW] /storage/emulated/0/low.wav -map [HIGH] /storage/emulated/0/high.wav")
+            selectFile?.run {
+
+                FFMpeg().transcode(getCmdStr(this))
+            }
+
 
         }
     }
 
+    private fun getCmdStr(inputFile: File): String {
+        val dirStr:String = inputFile.parentFile!!.absolutePath.plus("/Filter")
+        val filterDir = File(dirStr)
+        if(filterDir.exists()){
+            filterDir.deleteRecursively()
+        }
+        filterDir.mkdir()
+        val lowOutPut = "${filterDir.absolutePath}/low.wav"
+        val highOutput = "${filterDir.absolutePath}/high.wav"
+
+        return FilterCmd(Filter.AcrossOver).getCmd(arrayOf(inputFile.absolutePath),
+            arrayOf(lowOutPut,highOutput), arrayOf("1500"))
+    }
 
 
     companion object {
-        private val permissions = arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE,
-            Manifest.permission.READ_EXTERNAL_STORAGE)
+        private val permissions = arrayOf(
+            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            Manifest.permission.READ_EXTERNAL_STORAGE
+        )
         private const val CODE_PERMISSION_STORAGE = 1001
     }
 }
