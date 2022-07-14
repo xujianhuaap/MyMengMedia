@@ -10,6 +10,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import cn.skullmind.mbp.R
 import cn.skullmind.mbp.audio.RecordAudioAdapter
+import cn.skullmind.mbp.utils.getFileName
 import cn.skullmind.mbp.utils.getRecordAudioFiles
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -83,8 +84,8 @@ class TransCodeActivity : AppCompatActivity() {
             filterDir.deleteRecursively()
         }
         filterDir.mkdir()
-        val lowOutPut = "${filterDir.absolutePath}/low.wav"
-        val highOutput = "${filterDir.absolutePath}/high.wav"
+        val lowOutPut = "${filterDir.absolutePath}/".plus(getFileName("low_","wav"))
+        val highOutput = "${filterDir.absolutePath}/".plus(getFileName("high_","wav"))
 
         return FilterCmd(Filter.AcrossOver).getCmd(arrayOf(inputFile.absolutePath),
             arrayOf(lowOutPut,highOutput), arrayOf("1500"))
