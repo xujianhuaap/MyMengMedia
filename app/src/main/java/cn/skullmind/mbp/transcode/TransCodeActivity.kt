@@ -78,17 +78,24 @@ class TransCodeActivity : AppCompatActivity() {
     }
 
     private fun getCmdStr(inputFile: File): String {
-        val dirStr:String = inputFile.parentFile!!.absolutePath.plus("/Filter")
+        val dirStr: String = inputFile.parentFile!!.absolutePath.plus("/Filter")
         val filterDir = File(dirStr)
-        if(filterDir.exists()){
+        if (filterDir.exists()) {
             filterDir.deleteRecursively()
         }
         filterDir.mkdir()
-        val lowOutPut = "${filterDir.absolutePath}/".plus(getFileName("low_","wav"))
-        val highOutput = "${filterDir.absolutePath}/".plus(getFileName("high_","wav"))
+        val lowOutPut = "${filterDir.absolutePath}/".plus(getFileName("low_", "wav"))
+        val highOutput = "${filterDir.absolutePath}/".plus(getFileName("high_", "wav"))
 
-        return FilterCmd(Filter.AcrossOver).getCmd(arrayOf(inputFile.absolutePath),
-            arrayOf(lowOutPut,highOutput), arrayOf("1500"))
+        return FilterCmd(Filter.AcrossOver).getCmd(
+            arrayOf(
+                inputFile.absolutePath,
+                "1500",
+                lowOutPut,
+                highOutput,
+
+            )
+        )
     }
 
 
