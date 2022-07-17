@@ -6,8 +6,13 @@ class FFMpeg {
         nativeCmd(args = arr)
     }
 
+    fun clear(){
+        nativeCleanUp()
+    }
+
 
     private external fun nativeCmd(args:Array<String>):Int
+    private external fun nativeCleanUp()
 
     companion object{
         init {

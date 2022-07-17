@@ -32,5 +32,9 @@ JNIEXPORT jint JNICALL Java_cn_skullmind_mbp_transcode_FFMpeg_nativeCmd
     return value;
 }
 
+JNIEXPORT void JNICALL Java_cn_skullmind_mbp_transcode_FFMpeg_nativeCleanUp
+        (JNIEnv *env, jobject thisObj){
+    exit_program(0);
+}
 }
 

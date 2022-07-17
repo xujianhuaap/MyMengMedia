@@ -13,7 +13,15 @@ extern "C" {
  * Signature: ([Ljava/lang/String;)I
  */
 JNIEXPORT jint JNICALL Java_cn_skullmind_mbp_transcode_FFMpeg_nativeCmd
-  (JNIEnv *, __attribute__((unused)) __attribute__((unused)) jobject, jobjectArray);
+  (JNIEnv *, jobject, jobjectArray);
+
+/*
+ * Class:     cn_skullmind_mbp_transcode_FFMpeg
+ * Method:    nativeCleanUp
+ * Signature: ()V
+ */
+JNIEXPORT void JNICALL Java_cn_skullmind_mbp_transcode_FFMpeg_nativeCleanUp
+  (JNIEnv *, jobject);
 
 #ifdef __cplusplus
 }
