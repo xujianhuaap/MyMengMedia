@@ -12,14 +12,14 @@ android {
             keyPassword '123456ap'
         }
     }
-    compileSdkVersion 29
-    buildToolsVersion "29.0.3"
+    compileSdkVersion rootProject.ext.android.compileSdkVersion
+    buildToolsVersion rootProject.ext.android.buildToolsVersion
     defaultConfig {
         applicationId "cn.skullmind.mbp"
-        minSdkVersion 28
-        targetSdkVersion 28
-        versionCode 1
-        versionName "1.0"
+        minSdkVersion rootProject.ext.android.minSdkVersion
+        targetSdkVersion rootProject.ext.android.targetSdkVersion
+        versionCode rootProject.ext.app.versionCode
+        versionName rootProject.ext.app.versionName
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
@@ -56,21 +56,22 @@ android {
     externalNativeBuild {
         cmake {
             path file('src/main/jni/CMakeLists.txt')
-            version "3.10.2"
+            version rootProject.ext.android.cmake_version
         }
     }
 }
 
 dependencies {
 
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    implementation 'androidx.core:core-ktx:1.2.0'
-    implementation 'androidx.appcompat:appcompat:1.1.0'
-    implementation 'com.google.android.material:material:1.1.0'
-    implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
-    implementation 'androidx.navigation:navigation-fragment-ktx:2.2.2'
-    implementation 'androidx.navigation:navigation-ui-ktx:2.2.2'
-    testImplementation 'junit:junit:4.+'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.1'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+    implementation rootProject.ext.dependencies.kotlin_stdlib
+    implementation rootProject.ext.dependencies.core_ktx
+    implementation rootProject.ext.dependencies.appcompat
+    implementation rootProject.ext.dependencies.material
+    implementation rootProject.ext.dependencies.constraintlayout
+    implementation rootProject.ext.dependencies.navigation_fragment
+    implementation rootProject.ext.dependencies.navigation_ui_ktx
+    testImplementation rootProject.ext.testDependencies.junit
+    androidTestImplementation rootProject.ext.testDependencies.androidx_junit
+    androidTestImplementation rootProject.ext.testDependencies.espresso_core
+
 }

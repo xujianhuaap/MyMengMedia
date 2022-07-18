@@ -2,9 +2,9 @@ package cn.skullmind.mbp.transcode
 
 object FFMpeg {
 
-    fun transcode(cmd:String){
+    fun transcode(cmd:String):Int{
         val arr = cmd.split(" ").toTypedArray()
-        nativeCmd(args = arr)
+        return nativeCmd(args = arr)
     }
 
     fun clear(){

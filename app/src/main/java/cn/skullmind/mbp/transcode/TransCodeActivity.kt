@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import cn.skullmind.mbp.R
@@ -21,6 +22,15 @@ fun startTransCodeActivity(context: Context) {
 }
 
 class TransCodeActivity : AppCompatActivity() {
+    private val transcodeCallBack = object:TranscodeCallBack{
+        override fun transCodeSuccess() {
+            TODO("Not yet implemented")
+        }
+
+        override fun transCodeFailure() {
+            TODO("Not yet implemented")
+        }
+    }
     private var selectFile: File? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -70,7 +80,11 @@ class TransCodeActivity : AppCompatActivity() {
         GlobalScope.launch {
             selectFile?.run {
 
-                FFMpeg.transcode(getCmdStr(this))
+                if(FFMpeg.transcode(getCmdStr(this)) == 0){
+                    transcodeCallBack.transCodeSuccess()
+                }else{
+                    transcodeCallBack.transCodeFailure()
+                }
             }
 
 
@@ -78,12 +92,7 @@ class TransCodeActivity : AppCompatActivity() {
     }
 
     private fun getCmdStr(inputFile: File): String {
-        val dirStr: String = inputFile.parentFile!!.absolutePath.plus("/Filter")
-        val filterDir = File(dirStr)
-        if (filterDir.exists()) {
-            filterDir.deleteRecursively()
-        }
-        filterDir.mkdir()
+        val filterDir = getTranscodeResultDir(inputFile)
         val lowOutPut = "${filterDir.absolutePath}/".plus(getFileName("low_", "wav"))
         val highOutput = "${filterDir.absolutePath}/".plus(getFileName("high_", "wav"))
 
@@ -98,10 +107,26 @@ class TransCodeActivity : AppCompatActivity() {
         )
     }
 
+    private fun getTranscodeResultDir(inputFile: File): File {
+        val dirStr: String = inputFile.parentFile!!.absolutePath.plus("/Filter")
+        val filterDir = File(dirStr)
+        if (filterDir.exists()) {
+            filterDir.deleteRecursively()
+        }
+        filterDir.mkdir()
+        return filterDir
+    }
 
-    override fun onStop() {
-        super.onStop()
+    private fun getTranscodeResult():List<File>?{
+        return selectFile?.run {
+            getTranscodeResultDir(this).listFiles().filter { it.isFile }
+        }
+    }
+
+
+    override fun onDestroy() {
         FFMpeg.clear()
+        super.onDestroy()
     }
 
     companion object {
@@ -111,4 +136,9 @@ class TransCodeActivity : AppCompatActivity() {
         )
         private const val CODE_PERMISSION_STORAGE = 1001
     }
+}
+
+interface TranscodeCallBack{
+    fun transCodeSuccess()
+    fun transCodeFailure()
 }
