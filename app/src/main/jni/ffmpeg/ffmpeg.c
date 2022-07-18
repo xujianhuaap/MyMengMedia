@@ -526,6 +526,8 @@ static void ffmpeg_cleanup(int ret)
             av_freep(&fg->inputs[j]);
         }
         av_freep(&fg->inputs);
+        fg->nb_inputs = 0;
+
         for (j = 0; j < fg->nb_outputs; j++) {
             OutputFilter *ofilter = fg->outputs[j];
 
@@ -536,10 +538,14 @@ static void ffmpeg_cleanup(int ret)
             av_freep(&fg->outputs[j]);
         }
         av_freep(&fg->outputs);
-        av_freep(&fg->graph_desc);
+        fg->nb_outputs = 0;
 
+        av_freep(&fg->graph_desc);
         av_freep(&filtergraphs[i]);
+
     }
+
+    nb_filtergraphs = 0;
     av_freep(&filtergraphs);
 
     av_freep(&subtitle_out);
@@ -631,6 +637,10 @@ static void ffmpeg_cleanup(int ret)
     av_freep(&input_files);
     av_freep(&output_streams);
     av_freep(&output_files);
+    nb_input_files = 0;
+    nb_output_files = 0;
+    nb_input_streams = 0;
+    nb_output_streams=0;
 
     uninit_opts();
 

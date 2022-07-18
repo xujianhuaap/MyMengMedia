@@ -103,7 +103,7 @@ class TransCodeActivity : AppCompatActivity() {
 
     override fun onStop() {
         super.onStop()
-        ffMpeg.clear()
+//        ffMpeg.clear()
     }
 
     companion object {
