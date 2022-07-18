@@ -66,13 +66,11 @@ class TransCodeActivity : AppCompatActivity() {
         }
     }
 
-    private val ffMpeg = FFMpeg()
-
     private fun startTranscode() {
         GlobalScope.launch {
             selectFile?.run {
 
-                ffMpeg.transcode(getCmdStr(this))
+                FFMpeg.transcode(getCmdStr(this))
             }
 
 
@@ -103,7 +101,7 @@ class TransCodeActivity : AppCompatActivity() {
 
     override fun onStop() {
         super.onStop()
-//        ffMpeg.clear()
+        FFMpeg.clear()
     }
 
     companion object {
