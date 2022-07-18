@@ -3,14 +3,17 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="app/src/main/res/drawable/ic_launcher_background.xml" value="0.3085" />
+        <entry key="app/src/main/res/drawable/shape_divider_rect.xml" value="0.2705" />
         <entry key="app/src/main/res/drawable/shape_rectangle_corner_red_outline.xml" value="0.2255" />
         <entry key="app/src/main/res/layout/activity_audio.xml" value="0.264" />
         <entry key="app/src/main/res/layout/activity_ffmpeg_info.xml" value="0.3020833333333333" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.3020833333333333" />
-        <entry key="app/src/main/res/layout/activity_trans_code.xml" value="0.3020833333333333" />
+        <entry key="app/src/main/res/layout/activity_trans_code.xml" value="0.4" />
         <entry key="app/src/main/res/layout/content_main.xml" value="0.3020833333333333" />
         <entry key="app/src/main/res/layout/fragment_first.xml" value="0.3020833333333333" />
         <entry key="app/src/main/res/layout/item_ffmpeg_func.xml" value="0.2989583333333333" />
+        <entry key="app/src/main/res/layout/item_ffmpeg_transcode_file.xml" value="0.3020833333333333" />
       </map>
     </option>
   </component>

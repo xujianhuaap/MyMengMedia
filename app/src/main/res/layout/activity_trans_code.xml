@@ -6,19 +6,31 @@
     android:layout_height="match_parent">
 
     <TextView
-        android:id="@+id/tv_filter"
+        android:id="@+id/tv_filter_status"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="@dimen/dimen_10dp"
         android:gravity="center"
+        tools:text="完成转码"
+        android:text="刷新状态"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+    <TextView
+        android:id="@+id/tv_filter_input"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/dimen_10dp"
+        android:gravity="center"
+        tools:text="input.mp3"
+        app:layout_constraintTop_toBottomOf="@+id/tv_filter_status"
+         />
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rec_transcode_files"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@+id/tv_filter"/>
+        android:paddingBottom="@dimen/dimen_50dp"
+        app:layout_constraintTop_toBottomOf="@+id/tv_filter_input"/>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

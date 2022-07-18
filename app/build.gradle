@@ -1,6 +1,7 @@
 plugins {
     id 'com.android.application'
     id 'kotlin-android'
+    id 'kotlin-kapt'
 }
 
 android {
@@ -73,5 +74,25 @@ dependencies {
     testImplementation rootProject.ext.testDependencies.junit
     androidTestImplementation rootProject.ext.testDependencies.androidx_junit
     androidTestImplementation rootProject.ext.testDependencies.espresso_core
+
+
+
+
+    // ViewModel
+    implementation rootProject.ext.dependencies.lifecycle_viewmodel
+    // LiveData
+    implementation rootProject.ext.dependencies.lifecycle_livedata
+    // Lifecycles only (without ViewModel or LiveData)
+    implementation rootProject.ext.dependencies.lifecycle_runtime
+
+    // Saved state module for ViewModel
+    implementation rootProject.ext.dependencies.lifecycle_savestate
+
+    // Annotation processor
+    kapt rootProject.ext.dependencies.lifecycle_compiler
+    // alternately - if using Java8, use the following instead of lifecycle-compiler
+    implementation rootProject.ext.dependencies.lifecycle_java_8
+
+
 
 }
