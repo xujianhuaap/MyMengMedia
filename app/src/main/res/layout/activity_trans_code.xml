@@ -13,6 +13,8 @@
         android:gravity="center"
         tools:text="完成转码"
         android:text="刷新状态"
+        android:textSize="@dimen/font_18sp"
+        android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
