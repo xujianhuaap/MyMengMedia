@@ -7,6 +7,8 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.text.Html.FROM_HTML_MODE_LEGACY
+import android.text.Html.fromHtml
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -25,7 +27,9 @@ import cn.skullmind.mbp.audio.RecordAudioAdapter
 import cn.skullmind.mbp.utils.getFileName
 import cn.skullmind.mbp.utils.getRecordAudioFiles
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.util.*
 
@@ -54,7 +58,9 @@ class TransCodeActivity : AppCompatActivity() {
         vm = ViewModelProvider(this)[TranscodeViewModel::class.java]
         vm.getSelectFile().observe(this){
             it?.run {
-                tvFilterInput.text = this.name
+                val transcodeInput =
+                    String.format(resources.getString(R.string.activity_transcode_input), this.name)
+                tvFilterInput.text = fromHtml(transcodeInput, FROM_HTML_MODE_LEGACY)
             }
         }
 
@@ -162,10 +168,14 @@ class TranscodeViewModel:ViewModel(){
      fun startTranscode() {
         GlobalScope.launch {
             selectFile.value?.run {
-                transcodeStatus.postValue(FFMpeg.transcode(getCmdStr(this)))
-                if(transcodeStatus.value == 0){
-                    transcodeFiles.postValue(getTranscodeResult())
+                val transcode = FFMpeg.transcode(getCmdStr(this))
+                withContext(MainScope().coroutineContext){
+                    transcodeStatus.value = transcode
+                    if(transcodeStatus.value == 0){
+                        transcodeFiles.postValue(getTranscodeResult())
+                    }
                 }
+
             }
         }
     }

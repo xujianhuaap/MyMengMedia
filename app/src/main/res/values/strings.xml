@@ -11,4 +11,7 @@
     <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
     <string name="media_transcode">转码</string>
     <string name="record_audio">音频录制</string>
+    <string name="activity_transcode_input"><![CDATA[
+        输入文件:<br/>%s
+    ]]></string>
 </resources>
