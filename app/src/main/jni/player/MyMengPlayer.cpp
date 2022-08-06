@@ -41,60 +41,8 @@ MyMengPlayer * MyMengPlayer::getInstance(JNIEnv *env, jobject obj) {
     return reinterpret_cast<MyMengPlayer*>(env->GetLongField(obj,f));
 }
 
-void MyMengPlayer::Init(JNIEnv *env, jobject obj, const char *url) {
-    env->GetJavaVM(&m_jvm);
-    m_java_obj = env->NewGlobalRef(obj);
-    m_audio_decoder = new AudioDecoder(url);
-    m_audioRender = new OpenSLRender();
 
-
-    m_audio_decoder->SetAudioRender(m_audioRender);
-    m_audio_decoder->SetMessageCallback(this,postMessage);
-
-}
-
-void MyMengPlayer::UnInit() {
-    if(m_audio_decoder){
-        delete m_audio_decoder;
-        m_audio_decoder = nullptr;
-    }
-
-    if(m_audioRender){
-        delete m_audioRender;
-        m_audioRender = nullptr;
-    }
-    bool isAttach = false;
-   getEnv(&isAttach)->DeleteGlobalRef(m_java_obj);
-   if(isAttach){
-       getJVM()->DetachCurrentThread();
-   }
-}
-
-void MyMengPlayer::Play() {
-    if(m_audio_decoder){
-        m_audio_decoder->Start();
-    }
-}
-
-void MyMengPlayer::Pause() {
-    if(m_audio_decoder){
-        m_audio_decoder->Pause();
-    }
-}
-
-void MyMengPlayer::Stop() {
-    if(m_audio_decoder){
-        m_audio_decoder->Stop();
-    }
-}
-
-void MyMengPlayer::SeekToPosition(float pos) {
-    if(m_audio_decoder){
-        m_audio_decoder->SeekToPosition(pos);
-    }
-}
-
-long MyMengPlayer::GetMediaParams(int paramType) {
+long AudioPlayer::GetMediaParams(int paramType) {
     //TODO
     return 0;
 }
@@ -124,7 +72,7 @@ JNIEnv * MyMengPlayer::getEnv(bool *isAttach) {
 
 
 JavaVM * MyMengPlayer::getJVM() {
-   return m_jvm;
+    return m_jvm;
 }
 
 jobject MyMengPlayer::getJavaObject() {
@@ -141,10 +89,66 @@ void MyMengPlayer::postMessage(void *context, int msgType, float msgCode) {
         jobject  javaObj = player->getJavaObject();
         jclass clazz = env->GetObjectClass(javaObj);
         jmethodID methodId = env->GetMethodID(clazz,JAVA_PLAYER_EVENT_CALLBACK_API_NAME,
-                "(IF)V");
+                                              "(IF)V");
         env->CallVoidMethod(javaObj,methodId,msgType,msgCode);
         if(isAttach){
             player->getJVM()->DetachCurrentThread();
         }
     }
 }
+
+
+void AudioPlayer::Init(JNIEnv *env, jobject obj, const char *url) {
+    env->GetJavaVM(&m_jvm);
+    m_java_obj = env->NewGlobalRef(obj);
+    m_audio_decoder = new AudioDecoder(url);
+    m_audioRender = new OpenSLRender();
+
+
+    m_audio_decoder->SetAudioRender(m_audioRender);
+    m_audio_decoder->SetMessageCallback(this,postMessage);
+
+}
+
+void AudioPlayer::UnInit() {
+    if(m_audio_decoder){
+        delete m_audio_decoder;
+        m_audio_decoder = nullptr;
+    }
+
+    if(m_audioRender){
+        delete m_audioRender;
+        m_audioRender = nullptr;
+    }
+    bool isAttach = false;
+   getEnv(&isAttach)->DeleteGlobalRef(m_java_obj);
+   if(isAttach){
+       getJVM()->DetachCurrentThread();
+   }
+}
+
+void AudioPlayer::Play() {
+    if(m_audio_decoder){
+        m_audio_decoder->Start();
+    }
+}
+
+void AudioPlayer::Pause() {
+    if(m_audio_decoder){
+        m_audio_decoder->Pause();
+    }
+}
+
+void AudioPlayer::Stop() {
+    if(m_audio_decoder){
+        m_audio_decoder->Stop();
+    }
+}
+
+void AudioPlayer::SeekToPosition(float pos) {
+    if(m_audio_decoder){
+        m_audio_decoder->SeekToPosition(pos);
+    }
+}
+
+

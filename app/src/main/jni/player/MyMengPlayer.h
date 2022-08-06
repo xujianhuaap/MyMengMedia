@@ -18,39 +18,59 @@ public:
 
     ~MyMengPlayer() {}
 
-    void Init(JNIEnv *env, jobject obj, const char *url);
+    virtual void Init(JNIEnv *env, jobject obj, const char *url) =0;
 
-    void UnInit();
+    virtual void UnInit()=0;
 
-    void Play();
+    virtual void Play() =0;
 
-    void Pause();
+    virtual void Pause()=0;
 
-    void Stop();
+    virtual void Stop()=0;
 
-    void SeekToPosition(float pos);
+    virtual void SeekToPosition(float pos)=0;
 
-    long GetMediaParams(int paramType);
+    virtual long GetMediaParams(int paramType)=0;
 
 
     static MyMengPlayer* getInstance(JNIEnv *env, jobject obj);
     static void StoreNativeHandle(JNIEnv *env, jobject obj,MyMengPlayer* handle);
-private:
+    static void postMessage(void *context, int msgType, float msgCode);
+protected:
     JNIEnv *getEnv(bool *isAttach);
 
     jobject getJavaObject();
 
     JavaVM *getJVM();
 
-    static void postMessage(void *context, int msgType, float msgCode);
-
     JavaVM *m_jvm = nullptr;
     jobject m_java_obj;
-    AudioRender* m_audioRender = nullptr;
-    AudioDecoder * m_audio_decoder = nullptr;
-
-
 
 };
 
+class AudioPlayer: public MyMengPlayer{
+public:
+    AudioPlayer(){}
+    ~AudioPlayer(){}
+    void Init(JNIEnv *env, jobject obj, const char *url) override;
+
+    void UnInit() override;
+
+    void Play() override;
+
+    void Pause() override;
+
+    void Stop() override;
+
+    void SeekToPosition(float pos) override;
+
+    long GetMediaParams(int paramType) override;
+
+private:
+    AudioRender* m_audioRender = nullptr;
+    AudioDecoder * m_audio_decoder = nullptr;
+};
+//class VideoPlayer : MyMengPlayer{
+//
+//};
 #endif //MYMENGMEDIA_MYMENGPLAYER_H

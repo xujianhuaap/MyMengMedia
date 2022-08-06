@@ -16,7 +16,7 @@ Java_cn_skullmind_mbp_media_MediaPlayer_nativeInit
          jobject obj, jstring
          url) {
     const char *outUrl = env->GetStringUTFChars(url, nullptr);
-    MyMengPlayer *player = new MyMengPlayer();
+    MyMengPlayer *player = new AudioPlayer();
     player->Init(env, obj, outUrl);
     MyMengPlayer::StoreNativeHandle(env, obj, player);
 }
