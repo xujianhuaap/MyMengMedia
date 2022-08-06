@@ -15,8 +15,22 @@ Java_cn_skullmind_mbp_media_MediaPlayer_nativeInit
          *env,
          jobject obj, jstring
          url) {
+    jclass  clazz = env->GetObjectClass(obj);
+    jfieldID  mediaTypeField  = env->GetFieldID(clazz,"mediaType","I");
+    jint mediaType = env->GetIntField(obj,mediaTypeField);
+
+    Log::d("media Type %d",mediaType);
+    MyMengPlayer *player;
+    if(mediaType == AVMEDIA_TYPE_VIDEO){
+        player = new VideoPlayer();
+    } else if(mediaType == AVMEDIA_TYPE_AUDIO){
+        player = new AudioPlayer();
+    }
+
+
+
     const char *outUrl = env->GetStringUTFChars(url, nullptr);
-    MyMengPlayer *player = new AudioPlayer();
+
     player->Init(env, obj, outUrl);
     MyMengPlayer::StoreNativeHandle(env, obj, player);
 }

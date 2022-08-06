@@ -4,11 +4,10 @@ import android.util.Log
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
 
-class MediaPlayer(val status: MediaPlayerStatus) {
+class MediaPlayer(val status: MediaPlayerStatus,val mediaType:Int) {
 
    private var nativePlayerHandle = 0L
-
-    constructor(url: String,status: MediaPlayerStatus) : this(status) {
+    constructor(url: String,status: MediaPlayerStatus,mediaType:Int) : this(status,mediaType) {
         nativeInit(url)
     }
 
@@ -44,6 +43,16 @@ class MediaPlayer(val status: MediaPlayerStatus) {
             System.loadLibrary("native-lib")
         }
     }
+}
+
+enum class MediaType(val value: Int){
+    AVMEDIA_TYPE_UNKNOWN(-1),  ///< Usually treated as AVMEDIA_TYPE_DATA
+    AVMEDIA_TYPE_VIDEO(0),
+    AVMEDIA_TYPE_AUDIO(1),
+    AVMEDIA_TYPE_DATA(2),          ///< Opaque data information usually continuous
+    AVMEDIA_TYPE_SUBTITLE(3),
+    AVMEDIA_TYPE_ATTACHMENT(4),    ///< Opaque data information usually sparse
+    AVMEDIA_TYPE_NB(4)
 }
 
 enum class MsgType(val value:Int){

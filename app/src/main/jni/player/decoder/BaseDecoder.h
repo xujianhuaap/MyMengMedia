@@ -37,6 +37,7 @@ enum DecoderMsg {
 
 };
 
+
 class BaseDecoder : public Decoder {
 public:
     BaseDecoder() {}

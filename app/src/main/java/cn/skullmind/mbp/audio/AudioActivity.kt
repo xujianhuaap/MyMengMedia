@@ -135,7 +135,8 @@ class AudioActivity : FragmentActivity() {
                     currentRecordFile = file
                     mediaPlayer = MediaPlayer(
                         file.absolutePath,
-                        status = playStatusListener
+                        status = playStatusListener,
+                        MediaType.AVMEDIA_TYPE_AUDIO.value
                     )
                     mediaPlayer.play()
                     dialog.dismiss()

@@ -152,3 +152,41 @@ void AudioPlayer::SeekToPosition(float pos) {
 }
 
 
+
+// VideoPlayer
+
+long VideoPlayer::GetMediaParams(int paramType) {
+    //TODO
+    return 0;
+}
+
+
+void VideoPlayer::Init(JNIEnv *env, jobject obj, const char *url) {
+
+}
+
+
+void VideoPlayer::UnInit() {
+
+}
+
+void VideoPlayer::Play() {
+
+}
+
+void VideoPlayer::Pause() {
+
+}
+
+void VideoPlayer::SeekToPosition(float pos) {
+
+}
+
+void VideoPlayer::Stop() {
+
+}
+
+
+
+
+

@@ -70,7 +70,19 @@ private:
     AudioRender* m_audioRender = nullptr;
     AudioDecoder * m_audio_decoder = nullptr;
 };
-//class VideoPlayer : MyMengPlayer{
-//
-//};
+class VideoPlayer : public MyMengPlayer{
+    void Init(JNIEnv *env, jobject obj, const char *url) override;
+
+    void UnInit() override;
+
+    void Play() override;
+
+    void Pause() override;
+
+    void Stop() override;
+
+    void SeekToPosition(float pos) override;
+
+    long GetMediaParams(int paramType) override;
+};
 #endif //MYMENGMEDIA_MYMENGPLAYER_H
