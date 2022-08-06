@@ -8,6 +8,7 @@
 #include <jni.h>
 #include <AudioFrame.h>
 #include "decoder/AudioDecoder.h"
+#include "decoder/VideoDecoder.h"
 
 #define JAVA_PLAYER_EVENT_CALLBACK_API_NAME "playerEventCallback"
 
@@ -71,6 +72,7 @@ private:
     AudioDecoder * m_audio_decoder = nullptr;
 };
 class VideoPlayer : public MyMengPlayer{
+public:
     void Init(JNIEnv *env, jobject obj, const char *url) override;
 
     void UnInit() override;
@@ -84,5 +86,9 @@ class VideoPlayer : public MyMengPlayer{
     void SeekToPosition(float pos) override;
 
     long GetMediaParams(int paramType) override;
+
+private:
+    VideoRender* m_video_render = nullptr;
+    VideoDecoder* m_vider_decoder = nullptr;
 };
 #endif //MYMENGMEDIA_MYMENGPLAYER_H
